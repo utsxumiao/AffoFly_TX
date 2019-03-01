@@ -12,8 +12,7 @@ uint16_t PPM[CHANNEL_COUNT];
 
 void CPPM_init() {
   pinMode(CPPM_PIN, OUTPUT);
-  digitalWrite(CPPM_PIN, LOW);
-  PORTD = PORTD & ~B01000000;  //use pin 6
+  PORTD = PORTD & ~B01000000;  //Set CPPM to low
   cli();
   TCCR1A = 0; // set entire TCCR1 register to 0
   TCCR1B = 0;

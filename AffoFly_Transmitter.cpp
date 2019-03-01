@@ -207,6 +207,7 @@ void Control_resetData() {
 }
 
 void Control_checkButtons() {
+  //TODO: read pin values from port register
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     bounces[i].update();
     if (bounces[i].fell()) {

@@ -27,25 +27,25 @@
 #define AUX4_PIN          5
 
 #if defined(SIMULATOR) || defined(BUDDY)
-// CPPM.cpp also needs to be updated as we use pin register there for performance
-#define CPPM_PIN          6   
+#define CPPM_PIN          6   // CPPM.cpp also needs to be updated as we use pin register there for performance
 #endif
 
+#define FN_PIN            7
+
 #ifdef NRF24
-#define NRF_CE_PIN        7
-#define NRF_CSN_PIN       8
+#define NRF_CE_PIN        9
+#define NRF_CSN_PIN       10
 #endif
 
 #ifdef BUZZER
-#define BUZZER_PIN        9
+#define BUZZER_PIN        8
 #endif
 
 #ifdef EXTEND_CHANNEL
 #define AUX5_PIN          6
-#define AUX6_PIN          9
+#define AUX6_PIN          8
 #endif
 
-#define FN_PIN            10
 
 #define BUTTON_BACK_PIN   2
 #define BUTTON_GO_PIN     3
