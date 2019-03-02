@@ -28,9 +28,12 @@ uint8_t aux1State = 0;
 uint8_t aux2State = 0;
 uint8_t aux3State = 0;
 uint8_t aux4State = 0;
+//uint8_t previousGroupDValue;
+
 #ifdef EXTEND_CHANNEL
 uint8_t aux5State = 0;
 uint8_t aux6State = 0;
+//uint8_t previousGroupBValue;
 #endif
 
 Bounce bounces[BUTTON_COUNT];
@@ -38,6 +41,8 @@ Bounce bounces[BUTTON_COUNT];
 uint32_t lastLoopMillis = 0;
 uint16_t loopInterval = 10; //To loop 100 times per second this value should be 10ms;
 
+//uint32_t previousButtonCheckMillis = 0;
+//uint8_t buttonCheckInterval = 5; //5ms for debounce, bouncing pretty much dies out after 4ms.
 
 ControlData controlData;
 
@@ -145,6 +150,22 @@ void Control_initConfig() {
   CURRENT_RX_CONFIG = EEPROM_readRxConfig(EEPROM_readCurrentRxId());
 }
 
+//void Control_initButtons() {
+//  pinMode(FN_PIN, INPUT_PULLUP);
+//  if (AUX_1_STATES > 1) pinMode(AUX1_PIN, INPUT_PULLUP);
+//  if (AUX_2_STATES > 1) pinMode(AUX2_PIN, INPUT_PULLUP);
+//  if (AUX_3_STATES > 1) pinMode(AUX3_PIN, INPUT_PULLUP);
+//  if (AUX_4_STATES > 1) pinMode(AUX4_PIN, INPUT_PULLUP);
+//#ifdef EXTEND_CHANNEL
+//  if (AUX_5_STATES > 1) pinMode(AUX5_PIN, INPUT_PULLUP);
+//  if (AUX_6_STATES > 1) pinMode(AUX6_PIN, INPUT_PULLUP);
+//  previousGroupDValue = PIND & B11111100;
+//  previousGroupBValue = PINB & B00000001;
+//#else
+//  previousGroupDValue = PIND & B10111100;
+//#endif
+//  
+//}
 void Control_initButtons() {
   Bounce fnBounce = Bounce();
   fnBounce.attach(FN_PIN, INPUT_PULLUP);
@@ -207,7 +228,19 @@ void Control_resetData() {
 }
 
 void Control_checkButtons() {
-  //TODO: read pin values from port register
+//  if (currentMillis - previousButtonCheckMillis >= buttonCheckInterval) {
+//    previousButtonCheckMillis = currentMillis;
+//#ifdef EXTEND_CHANNEL
+//    uint8_t groupDValue = PIND & B11111100;
+//    uint8_t groupBValue = PINB & B00000001;
+//#else
+//    uint8_t groupDValue = PIND & B10111100;
+//    if (previousGroupDValue != groupDValue) {
+//      
+//    }
+//#endif
+//  }
+  
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     bounces[i].update();
     if (bounces[i].fell()) {
@@ -309,7 +342,9 @@ void Control_checkButtons() {
   }
 }
 
-void Control_getData() { // Reverse channel setting should be considered
+void Control_getData() { 
+  //TODO: Reverse channel setting should be considered
+  //TODO: Use port manipulation for better performance
   controlData.Throttle  = mapJoystickValues(analogRead(THROTTLE_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.ThrottleTrim * RX_TRIM_STEP_WIDTH;
   controlData.Yaw       = mapJoystickValues(analogRead(YAW_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.YawTrim * RX_TRIM_STEP_WIDTH;
   controlData.Pitch     = mapJoystickValues(analogRead(PITCH_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.PitchTrim * RX_TRIM_STEP_WIDTH;

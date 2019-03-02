@@ -27,4 +27,22 @@ struct RxConfig {
   char    Name[10];
 };
 
+typedef struct menu_node_item {
+  uint8_t Id;
+  char* Menu;
+  struct menu_node* Item;
+  //void (*LookupFunc)(bool*);
+} MenuNodeItem;
+
+typedef struct menu_node {
+  char* Title;
+  menu_node* Prev;
+  MenuNodeItem* Items;
+  uint8_t Index;
+  uint8_t ItemCount;
+  uint8_t LookupItemCount;
+  uint8_t ParentId;
+  char* ParentMenu;
+} MenuNode;
+
 #endif /* TYPES_H_ */
