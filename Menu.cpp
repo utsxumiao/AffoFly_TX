@@ -9,9 +9,13 @@
 #include "Display.h"
 
 #define MENU_ID_TOP_CONTROL         10
+#ifdef SIMULATOR
 #define MENU_ID_TOP_SIMULATOR       11
+#endif
+#ifdef BUDDY
 #define MENU_ID_TOP_TRAINER         12
 #define MENU_ID_TOP_STUDENT         13
+#endif
 #define MENU_ID_TOP_SETTING         14
 
 #define MENU_ID_SETTING_TX          20
@@ -130,12 +134,28 @@ void setupMenu()  {
 
   // Top menu --------------------
   topMenu = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(topMenu, menu_top_title, 5);
-  initMenuNodeItem(topMenu->Items, 0, MENU_ID_TOP_CONTROL, menu_top_0);
-  initMenuNodeItem(topMenu->Items, 1, MENU_ID_TOP_SIMULATOR, menu_top_1);
-  initMenuNodeItem(topMenu->Items, 2, MENU_ID_TOP_TRAINER, menu_top_2);
-  initMenuNodeItem(topMenu->Items, 3, MENU_ID_TOP_STUDENT, menu_top_3);
-  initMenuNodeItem(topMenu->Items, 4, MENU_ID_TOP_SETTING, menu_top_4);
+  uint8_t topMenuNodeItemCount = 2;
+#ifdef SIMULATOR
+  topMenuNodeItemCount++;
+#endif
+#ifdef BUDDY
+  topMenuNodeItemCount += 2;
+#endif
+  initMenuNode(topMenu, menu_top_title, topMenuNodeItemCount);
+  uint8_t topMenuNodeItemIndex = 0;
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_CONTROL, menu_top_0);
+#ifdef SIMULATOR
+  topMenuNodeItemIndex++;
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SIMULATOR, menu_top_1);
+#endif
+#ifdef BUDDY
+  topMenuNodeItemIndex++;
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_TRAINER, menu_top_2);
+  topMenuNodeItemIndex++;
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_STUDENT, menu_top_3);
+#endif
+  topMenuNodeItemIndex++;
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SETTING, menu_top_4);
 
   currentMenu = topMenu;  // Top menu is seleted by default
 
@@ -284,6 +304,25 @@ void handleMenu(uint8_t menuId, char* title) {
   }
   else  {
     switch (menuId) {
+      case MENU_ID_TOP_CONTROL:
+        TX_MODE = MODE_CONTROL;
+        break;
+#ifdef SIMULATOR
+      case MENU_ID_TOP_SIMULATOR:
+        TX_MODE = MODE_SIMULATOR;
+        break;
+#endif
+#ifdef BUDDY
+      case MENU_ID_TOP_TRAINER:
+        TX_MODE = MODE_TRAINER;
+        break;
+      case MENU_ID_TOP_STUDENT:
+        TX_MODE = MODE_STUDENT;
+        break;
+#endif
+      case MENU_ID_RX_SETTING_BIND:
+        TX_MODE = MODE_BIND;
+        break;
       case MENU_ID_RX_RENAME_OK:
         strcpy(rxRenameTemplate->ParentMenu, title);
         break;

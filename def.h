@@ -66,7 +66,7 @@
 #define MODE_SIMULATOR      1
 #define MODE_TRAINER        2
 #define MODE_STUDENT        3
-#define MODE_SETTING        4
+#define MODE_BIND           4
 #define MODE_MENU           5
 
 // EEPROM address 0-99 for general TX settings

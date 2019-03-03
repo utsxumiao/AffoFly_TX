@@ -87,10 +87,13 @@ void txModeInit() {
     case MODE_MENU:
       Menu_init();
       break;
+#ifdef SIMULATOR
     case MODE_SIMULATOR:
       Control_init();
       CPPM_init();
       break;
+#endif
+#ifdef BUDDY
     case MODE_TRAINER:
       Control_init();
       CPPM_init();
@@ -99,7 +102,8 @@ void txModeInit() {
       Control_init();
       Radio_init();
       break;
-    case MODE_SETTING:
+#endif
+    case MODE_BIND:
       //TODO:
       break;
   }
@@ -114,11 +118,14 @@ void txModeProcess(uint32_t currentMillis) {
         Control_getData();
         Radio_sendData(controlData);
         break;
+#ifdef SIMULATOR
       case MODE_SIMULATOR:
         Control_checkButtons();
         Control_getData();
         CPPM_outputData(controlData);
         break;
+#endif
+#ifdef BUDDY
       case MODE_TRAINER:
         Control_checkButtons();
         //TODO: Activate button flip then getControlData();CPPM_outputData(controlData);
@@ -127,10 +134,11 @@ void txModeProcess(uint32_t currentMillis) {
         Control_checkButtons();
         //TODO: If receiving Trainer data, getTrainerData();sendRadioData(controlData);
         break;
+#endif
       case MODE_MENU:
         Menu_checkButtons();
         break;
-      case MODE_SETTING:
+      case MODE_BIND:
         //TODO:
         break;
     }

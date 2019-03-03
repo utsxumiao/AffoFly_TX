@@ -45,8 +45,8 @@ void Display_showModeScreen(uint8_t txMode) {
     case MODE_STUDENT:
       Serial.println(F("=           STUDENT            ="));
       break;
-    case MODE_SETTING:
-      Serial.println(F("=           SETTING            ="));
+    case MODE_BIND:
+      Serial.println(F("=            BIND              ="));
       break;
     case MODE_MENU:
       Serial.println(F("=            MENU              ="));
