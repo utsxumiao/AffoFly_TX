@@ -61,14 +61,14 @@ void Display_showModeScreen(uint8_t txMode) {
   Serial.println(F("================================"));
 }
 
-void Display_refreshMenu(char* title, char menuItems[][MENU_ITEM_LENGTH], uint8_t count, uint8_t currentMenuIndex) {
+void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index) {
   for (uint8_t i = 0; i < 10; i++) {
     Serial.println();
   }
   Serial.println(F("================================"));
   
-  Serial.print(F("=")); Serial.print(title);
-  for (uint8_t i = 0; i < SCREEN_WIDTH - strlen(title); i++) {
+  Serial.print(F("= ")); Serial.print(title);
+  for (uint8_t i = 0; i < SCREEN_WIDTH - strlen(title) - 1; i++) {
     Serial.print(F(" "));
   }
   Serial.println(F("="));
@@ -77,13 +77,13 @@ void Display_refreshMenu(char* title, char menuItems[][MENU_ITEM_LENGTH], uint8_
   
   for (uint8_t i = 0; i < count; i++) {
     Serial.print(F("="));
-    if (i == currentMenuIndex) {
+    if (i == index) {
       Serial.print(F("*"));
     } else {
       Serial.print(F(" "));
     }
-    Serial.print(menuItems[i]);
-    for (uint8_t j = 0; j < SCREEN_WIDTH - strlen(menuItems[i]) - 1; j++) {
+    Serial.print(items[i].Menu);
+    for (uint8_t j = 0; j < SCREEN_WIDTH - strlen(items[i].Menu) - 1; j++) {
       Serial.print(F(" "));
     }
     Serial.println(F("="));

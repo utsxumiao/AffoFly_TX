@@ -169,43 +169,43 @@ void Control_initConfig() {
 void Control_initButtons() {
   Bounce fnBounce = Bounce();
   fnBounce.attach(FN_PIN, INPUT_PULLUP);
-  fnBounce.interval(5);
+  fnBounce.interval(BUTTON_DEBOUNCE_MS);
   bounces[0] = fnBounce;
   if (AUX_1_STATES > 1) {
     Bounce aux1Bounce = Bounce();
     aux1Bounce.attach(AUX1_PIN, INPUT_PULLUP);
-    aux1Bounce.interval(5);
+    aux1Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[1] = aux1Bounce;
   }
   if (AUX_2_STATES > 1) {
     Bounce aux2Bounce = Bounce();
     aux2Bounce.attach(AUX2_PIN, INPUT_PULLUP);
-    aux2Bounce.interval(5);
+    aux2Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[2] = aux2Bounce;
   }
   if (AUX_3_STATES > 1) {
     Bounce aux3Bounce = Bounce();
     aux3Bounce.attach(AUX3_PIN, INPUT_PULLUP);
-    aux3Bounce.interval(5);
+    aux3Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[3] = aux3Bounce;
   }
   if (AUX_4_STATES > 1) {
     Bounce aux4Bounce = Bounce();
     aux4Bounce.attach(AUX4_PIN, INPUT_PULLUP);
-    aux4Bounce.interval(5);
+    aux4Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[4] = aux4Bounce;
   }
 #ifdef EXTEND_CHANNEL
   if (AUX_5_STATES > 1) {
     Bounce aux5Bounce = Bounce();
     aux5Bounce.attach(AUX5_PIN, INPUT_PULLUP);
-    aux5Bounce.interval(5);
+    aux5Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[5] = aux5Bounce;
   }
   if (AUX_6_STATES > 1) {
     Bounce aux6Bounce = Bounce();
     aux6Bounce.attach(AUX6_PIN, INPUT_PULLUP);
-    aux6Bounce.interval(5);
+    aux6Bounce.interval(BUTTON_DEBOUNCE_MS);
     bounces[6] = aux6Bounce;
   }
 #endif

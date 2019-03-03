@@ -2,6 +2,7 @@
 #include "types.h"
 #include "config.h"
 #include "def.h"
+#include "EEPROM.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
 #include "MENU.h"
@@ -13,38 +14,31 @@
 #define MENU_ID_TOP_STUDENT         13
 #define MENU_ID_TOP_SETTING         14
 
-#define MENU_ID_CONTROL_AUX         20
-#define MENU_ID_CONTROL_TYPR        21
-#define MENU_ID_CONTROL_MODE        22
-#define MENU_ID_CONTROL_BATTERY     23
-#define MENU_ID_CONTROL_SWD         24
-#define MENU_ID_CONTROL_RX          25
+#define MENU_ID_SETTING_TX          20
+#define MENU_ID_SETTING_RX          21
+#define MENU_ID_SETTING_DATA_RST    22
+#define MENU_ID_SETTING_SOFT_RST    23
 
-#define MENU_ID_SETTING_TX          30
-#define MENU_ID_SETTING_RX          31
-#define MENU_ID_SETTING_DATA_RST    32
-#define MENU_ID_SETTING_SOFT_RST    33
+#define MENU_ID_RX_0                30
+#define MENU_ID_RX_1                31
+#define MENU_ID_RX_2                32
+#define MENU_ID_RX_3                33
+#define MENU_ID_RX_4                34
+#define MENU_ID_RX_5                35
+#define MENU_ID_RX_6                36
+#define MENU_ID_RX_7                37
+#define MENU_ID_RX_8                38
+#define MENU_ID_RX_9                39
 
-#define MENU_ID_RX_0                40
-#define MENU_ID_RX_1                41
-#define MENU_ID_RX_2                42
-#define MENU_ID_RX_3                43
-#define MENU_ID_RX_4                44
-#define MENU_ID_RX_5                45
-#define MENU_ID_RX_6                46
-#define MENU_ID_RX_7                47
-#define MENU_ID_RX_8                48
-#define MENU_ID_RX_9                49
+#define MENU_ID_RX_SETTING_SELECT   40
+#define MENU_ID_RX_SETTING_RENAME   41
+#define MENU_ID_RX_SETTING_BIND     42
+#define MENU_ID_RX_SETTING_TOKEN    43
+#define MENU_ID_RX_SETTING_CHANNEL  44
 
-#define MENU_ID_RX_SETTING_SELECT   50
-#define MENU_ID_RX_SETTING_RENAME   51
-#define MENU_ID_RX_SETTING_BIND     52
-#define MENU_ID_RX_SETTING_TOKEN    53
-#define MENU_ID_RX_SETTING_CHANNEL  54
+#define MENU_ID_RX_RENAME_OK        50
 
-#define MENU_ID_RX_RENAME_OK        60
-
-#define RX_NAME_MAX_LEN             13
+#define RX_NAME_MAX_LEN             13 //TODO: this should move to each screen and name it more generic like MAX-LINE-LENGTH
 
 // Top menu items
 const char menu_top_title[] = "MODE";   // Menu title
@@ -54,29 +48,19 @@ const char menu_top_2[] = "TRAINER";
 const char menu_top_3[] = "STUDENT";
 const char menu_top_4[] = "SETTING";
 
-// Control menu items
-const char menu_control_title[] = "CONTROL";
-const char menu_control_0[] = "AUX 1-N";    // when IsTrimming == false
-const char menu_control_1[] = "TYPR Rate";  // when IsTrimming == true
-const char menu_control_2[] = "MODE";
-const char menu_control_3[] = "Battery";
-const char menu_control_4[] = "SWD 1-2";
-const char menu_control_5[] = "RX";
-
 // Setting menu items
 const char menu_setting_title[] = "SETTING";
-const char menu_setting_0[] = "TX_UniqueId";
-const char menu_setting_1[] = "RX Selection";
+const char menu_setting_0[] = "TX ID";
+const char menu_setting_1[] = "RX Setting";
 const char menu_setting_2[] = "Data Reset";
-const char menu_setting_3[] = "Soft Reset/Restart";
+const char menu_setting_3[] = "Restart";
 
 // TX_UniqueId menu items
 
 
 // RX meu items
-const char menu_rx_title[] = "RX";
+const char menu_rx_title[] = "RX SETTING";
 char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
-
 
 // RX setting menu items
 const char menu_rx_setting_0[] = "Select";
@@ -100,19 +84,19 @@ void Menu_init() {
 void Menu_initButtons() {
   Bounce backBounce = Bounce();
   backBounce.attach(BUTTON_BACK_PIN, INPUT_PULLUP);
-  backBounce.interval(5);
-  bounces[1] = backBounce;
+  backBounce.interval(BUTTON_DEBOUNCE_MS);
+  bounces[0] = backBounce;
   Bounce goBounce = Bounce();
   goBounce.attach(BUTTON_GO_PIN, INPUT_PULLUP);
-  goBounce.interval(5);
+  goBounce.interval(BUTTON_DEBOUNCE_MS);
   bounces[1] = goBounce;
   Bounce prevBounce = Bounce();
   prevBounce.attach(BUTTON_PREV_PIN, INPUT_PULLUP);
-  prevBounce.interval(5);
+  prevBounce.interval(BUTTON_DEBOUNCE_MS);
   bounces[2] = prevBounce;
   Bounce nextBounce = Bounce();
   nextBounce.attach(BUTTON_NEXT_PIN, INPUT_PULLUP);
-  nextBounce.interval(5);
+  nextBounce.interval(BUTTON_DEBOUNCE_MS);
   bounces[3] = nextBounce;
 }
 
@@ -141,10 +125,9 @@ void Menu_checkButtons() {
 }
 
 void setupMenu()  {
-  MenuNode* controlMenu;
   MenuNode* settingMenu;
   MenuNode* rxMenu;
-  
+
   // Top menu --------------------
   topMenu = (MenuNode*)malloc(sizeof(MenuNode));
   initMenuNode(topMenu, menu_top_title, 5);
@@ -155,18 +138,6 @@ void setupMenu()  {
   initMenuNodeItem(topMenu->Items, 4, MENU_ID_TOP_SETTING, menu_top_4);
 
   currentMenu = topMenu;  // Top menu is seleted by default
-
-  // Control menu --------------------
-  controlMenu = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(controlMenu, menu_control_title, 6);
-  initMenuNodeItemWithLookup(controlMenu->Items, 0, MENU_ID_CONTROL_AUX, menu_control_0);
-  initMenuNodeItemWithLookup(controlMenu->Items, 1, MENU_ID_CONTROL_TYPR, menu_control_1);
-  initMenuNodeItem(controlMenu->Items, 2, MENU_ID_CONTROL_MODE, menu_control_2);
-  initMenuNodeItem(controlMenu->Items, 3, MENU_ID_CONTROL_BATTERY, menu_control_3);
-  initMenuNodeItem(controlMenu->Items, 4, MENU_ID_CONTROL_SWD, menu_control_4);
-  initMenuNodeItem(controlMenu->Items, 5, MENU_ID_CONTROL_RX, menu_control_5);
-  controlMenu->Prev = topMenu;  // Link back to the previous menu node
-  topMenu->Items[0].Item = controlMenu;  // Link with the menu item in the previous menu node
 
   // Setting menu ---------------------
   settingMenu = (MenuNode*)malloc(sizeof(MenuNode));
@@ -267,7 +238,7 @@ void selectMenu() {
     int j = 0;
     uint8_t menuId = 0;
     char* title;
-    
+
     for (int i = 0; i < currentMenu->ItemCount; i++) {
       lookupData = true;
 
@@ -280,15 +251,14 @@ void selectMenu() {
         j++;
       }
     }
-    
+
     if (temp) {
       currentMenu = temp;
       currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
-      
       showMenu(currentMenu);  // print menu
     }
     else  { // No more sub-menu. Take action now
-//      Serial.println("No sub-menu found. Handling the menu"); // for testing only
+      //      Serial.println("No sub-menu found. Handling the menu"); // for testing only
       handleMenu(menuId, title); // Id distinguishes each menu
     }
   }
@@ -300,7 +270,7 @@ void handleMenu(uint8_t menuId, char* title) {
     rxSettingTemplate->ParentMenu = title;
     currentMenu = rxSettingTemplate;
     currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
-    
+
     showMenu(currentMenu);  // print menu
   }
   else if (menuId == MENU_ID_RX_SETTING_RENAME) {
@@ -314,26 +284,15 @@ void handleMenu(uint8_t menuId, char* title) {
   }
   else  {
     switch (menuId) {
-      case MENU_ID_CONTROL_AUX:
-//        Serial.println("Action: Control -> AUX");
-        break;
-      case MENU_ID_CONTROL_TYPR:
-//        Serial.println("Action: Control -> TYPR");
-        break;
-      case MENU_ID_CONTROL_MODE:
-//        Serial.println("Action: Control -> MODE");
-        break;
-      case MENU_ID_CONTROL_BATTERY:
-//        Serial.println("Action: Control -> BATTERY");
-        break;
-      case MENU_ID_CONTROL_SWD:
-//        Serial.println("Action: Control -> SWD");
-        break;
-      case MENU_ID_CONTROL_RX:
-//        Serial.println("Action: Control -> RX");
-        break;
       case MENU_ID_RX_RENAME_OK:
         strcpy(rxRenameTemplate->ParentMenu, title);
+        break;
+      case MENU_ID_SETTING_SOFT_RST:
+        softReset();
+        break;
+      case MENU_ID_SETTING_DATA_RST:
+        EEPROM_loadDefaults();
+        softReset();
         break;
     }
   }
@@ -348,48 +307,29 @@ void goBackMenu() {
   }
 }
 
-void showMenu(MenuNode* node)  {
+void showMenu(MenuNode* node) {
   if (node) {
-    Serial.print("== ");
+    char* title;
     if (node->ParentMenu) {
-      Serial.print(node->ParentMenu);
+      title = node->ParentMenu;
+    } else {
+      title = node->Title;
     }
-    else  {
-      Serial.print(node->Title);
-    }
-    Serial.println(" =="); // print Title first
-
-    bool lookupData = true;
-    int j = 0;
-    
-    for (int i = 0; i < node->ItemCount; i++) {
-      lookupData = true;
-
-      if (lookupData) {
-        if (node->Index == j) {
-          Serial.print("*");
-        }
-        else  {
-          Serial.print(" ");
-        }
-        j++;
-        
-        Serial.println(node->Items[i].Menu); // print each menu item
-      }
-    }
-    node->LookupItemCount = j;  // Refresh the number of items in a node
+    Display_refreshMenu(title, node->Items, node->ItemCount, node->Index);
+  } else {
+#ifdef DEBUG
+    Serial.println(F("Menu not set!"));
+#endif
   }
-  else  {
-    Serial.println("Menu not set!");
-  }
-  Serial.println(""); // print an empty line
 }
 
 void showRxRename(char* rxName) {
   //handleMenu(MENU_ID_RX_RENAME_OK, "RX3 Default");  // testing to change RX name here..
 }
 
-
+void softReset() {
+  asm volatile ("  jmp 0");
+}
 
 
 

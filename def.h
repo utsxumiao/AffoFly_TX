@@ -69,13 +69,11 @@
 #define MODE_SETTING        4
 #define MODE_MENU           5
 
-#define MENU_TITLE_LENGTH   15
-#define MENU_ITEM_LENGTH    15
-
 // EEPROM address 0-99 for general TX settings
 // Each RxConfig takes 20 bytes (current data use 16 bytes)
 // We allocate 10 RxConfig
 // EEPROM address 100-299 for 10 RxConfig
+#define EEPROM_SETTING_LENGTH           300
 #define RADIO_UNIQUE_ID_EEPROM_ADDRESS  0
 #define RADIO_UNIQUE_ID_LOWER_BOUNDARY  1000
 #define RADIO_UNIQUE_ID_UPPER_BOUNDARY  9999
@@ -100,5 +98,8 @@
 #define PPM_FRAME_LENGTH  20000
 #define PPM_PULSE_LENGTH  400
 #define CHANNEL_COUNT     12
+
+// Button Debounce
+#define BUTTON_DEBOUNCE_MS             5
 
 #endif /* DEF_H_ */

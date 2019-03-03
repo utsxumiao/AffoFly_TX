@@ -15,7 +15,7 @@ void handleMenu(uint8_t menuId, char* title);
 void goBackMenu();
 void showMenu(MenuNode* node);
 void showRxRename(char* rxName);
-
+void softReset();
 
 //======================================================
 //void back();

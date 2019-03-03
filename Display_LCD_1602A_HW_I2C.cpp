@@ -8,7 +8,7 @@
 
 #ifdef DISPLAY_LCD_1602A_HW_I2C
 
-void Display_refreshMenu(char* title, char menuItems[][MENU_ITEM_LENGTH], uint8_t count, uint8_t currentMenuIndex) {
+void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index) {
   
 }
 

@@ -46,7 +46,7 @@ void EEPROM_loadDefaults() {
 #ifdef DEBUG
   Serial.print(F("Loading defaults for EEPROM..."));
 #endif
-  for (int i = 0 ; i < EEPROM.length() ; i++) {
+  for (int i = 0 ; i < EEPROM_SETTING_LENGTH ; i++) {
     EEPROM.update(i, 0);
   }
   EEPROM.put(RADIO_UNIQUE_ID_EEPROM_ADDRESS, RADIO_UNIQUE_ID_LOWER_BOUNDARY);
