@@ -29,7 +29,7 @@ void Radio_init() {
   radio.startListening();
   radio.stopListening();
 #ifdef DEBUG
-  Serial.print("CHANNEL          = "); Serial.println(CURRENT_RX_CONFIG.RadioChannel);
+  Serial.print(F("CHANNEL          = ")); Serial.println(CURRENT_RX_CONFIG.RadioChannel);
   printf_begin();
   radio.printDetails();
 #endif

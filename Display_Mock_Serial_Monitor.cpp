@@ -12,88 +12,88 @@ const uint8_t SCREEN_WIDTH = 30;
 const uint8_t SCREEN_LINES = 8;
 
 void Display_showWelcomeScreen(char* projectName, char* projectVersion) {
-  Serial.println("================================");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.print("=          "); Serial.print(projectName); Serial.println("          =");
-  Serial.print("=            "); Serial.print(projectVersion); Serial.println("            =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("================================");
+  Serial.println(F("================================"));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.print(F("=          ")); Serial.print(projectName); Serial.println(F("          ="));
+  Serial.print(F("=            ")); Serial.print(projectVersion); Serial.println(F("            ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("================================"));
 }
 
 void Display_showModeScreen(uint8_t txMode) {
   for (uint8_t i = 0; i < 10; i++) {
     Serial.println();
   }
-  Serial.println("================================");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
+  Serial.println(F("================================"));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
   switch (txMode) {
     case MODE_CONTROL:
-      Serial.println("=           CONTROL            =");
+      Serial.println(F("=           CONTROL            ="));
       break;
     case MODE_SIMULATOR:
-      Serial.println("=           SIMULATOR          =");
+      Serial.println(F("=           SIMULATOR          ="));
       break;
     case MODE_TRAINER:
-      Serial.println("=           TRAINER            =");
+      Serial.println(F("=           TRAINER            ="));
       break;
     case MODE_STUDENT:
-      Serial.println("=           STUDENT            =");
+      Serial.println(F("=           STUDENT            ="));
       break;
     case MODE_SETTING:
-      Serial.println("=           SETTING            =");
+      Serial.println(F("=           SETTING            ="));
       break;
     case MODE_MENU:
-      Serial.println("=            MENU              =");
+      Serial.println(F("=            MENU              ="));
       break;
     default:
       break;
   }
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("=                              =");
-  Serial.println("================================");
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("=                              ="));
+  Serial.println(F("================================"));
 }
 
 void Display_refreshMenu(char* title, char menuItems[][MENU_ITEM_LENGTH], uint8_t count, uint8_t currentMenuIndex) {
   for (uint8_t i = 0; i < 10; i++) {
     Serial.println();
   }
-  Serial.println("================================");
+  Serial.println(F("================================"));
   
-  Serial.print("="); Serial.print(title);
+  Serial.print(F("=")); Serial.print(title);
   for (uint8_t i = 0; i < SCREEN_WIDTH - strlen(title); i++) {
-    Serial.print(" ");
+    Serial.print(F(" "));
   }
-  Serial.println("=");
+  Serial.println(F("="));
   
-  Serial.println("=------------------------------=");
+  Serial.println(F("=------------------------------="));
   
   for (uint8_t i = 0; i < count; i++) {
-    Serial.print("=");
+    Serial.print(F("="));
     if (i == currentMenuIndex) {
-      Serial.print("*");
+      Serial.print(F("*"));
     } else {
-      Serial.print(" ");
+      Serial.print(F(" "));
     }
     Serial.print(menuItems[i]);
     for (uint8_t j = 0; j < SCREEN_WIDTH - strlen(menuItems[i]) - 1; j++) {
-      Serial.print(" ");
+      Serial.print(F(" "));
     }
-    Serial.println("=");
+    Serial.println(F("="));
   }
 
   for (uint8_t i = 0; i < SCREEN_LINES - count - 2; i++) {
-    Serial.println("=                              =");
+    Serial.println(F("=                              ="));
   }
   
-  Serial.println("================================");
+  Serial.println(F("================================"));
 }
 
 #endif

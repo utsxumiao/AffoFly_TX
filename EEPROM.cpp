@@ -44,7 +44,7 @@ void EEPROM_writeRxConfig(RxConfig rxConfig) {
 
 void EEPROM_loadDefaults() {
 #ifdef DEBUG
-  Serial.print("Loading defaults for EEPROM...");
+  Serial.print(F("Loading defaults for EEPROM..."));
 #endif
   for (int i = 0 ; i < EEPROM.length() ; i++) {
     EEPROM.update(i, 0);
@@ -73,17 +73,17 @@ void EEPROM_loadDefaults() {
     EEPROM.put(rxConfigEepromAddress, rxConfig);
   }
 #ifdef DEBUG
-  Serial.println("Done");
+  Serial.println(F("Done"));
 #endif
 }
 
 #ifdef DEBUG
 void EEPROM_dumpAll() {
-  Serial.println("EEPROM DATA:    ");
+  Serial.println(F("EEPROM DATA:    "));
   for (int i = 0 ; i < 300 ; i++) {
     Serial.print("  ");
     Serial.print(i);
-    Serial.print("=>");
+    Serial.print(F("=>"));
     Serial.print(EEPROM.read(i));
   }
   Serial.println("");

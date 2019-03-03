@@ -73,7 +73,7 @@ void loop() {
 
 void txModeInit() {
 #ifdef DEBUG
-  Serial.print("TX MODE: ");
+  Serial.print(F("TX MODE: "));
   Serial.println(TX_MODE);
 #endif
 
@@ -140,7 +140,7 @@ void Control_init() {
   Control_initConfig();
   Control_initButtons();
 #ifdef DEBUG
-  Serial.print("TX Unique ID: "); Serial.println(TX_UNIQUE_ID);
+  Serial.print(F("TX Unique ID: ")); Serial.println(TX_UNIQUE_ID);
 #endif
   Control_resetData();
 }
@@ -316,24 +316,24 @@ void Control_checkButtons() {
 #endif
       }
 #ifdef DEBUG
-      Serial.print("Button pressed, index: ");
+      Serial.print(F("Button pressed, index: "));
       Serial.print(i);
-      Serial.print("  Aux1:");
+      Serial.print(F("  Aux1:"));
       Serial.print(aux1State);
-      Serial.print("  Aux2:");
+      Serial.print(F("  Aux2:"));
       Serial.print(aux2State);
-      Serial.print("  Aux3:");
+      Serial.print(F("  Aux3:"));
       Serial.print(aux3State);
-      Serial.print("  Aux4:");
+      Serial.print(F("  Aux4:"));
       Serial.print(aux4State);
 #ifdef EXTEND_CHANNEL
-      Serial.print("  Aux5:");
+      Serial.print(F("  Aux5:"));
       Serial.print(aux5State);
-      Serial.print("  Aux6:");
+      Serial.print(F("  Aux6:"));
       Serial.print(aux6State);
 #endif
       if(trimming) {
-        Serial.print("    Trimming Stick Index:");
+        Serial.print(F("    Trimming Stick Index:"));
         Serial.print(trimmingStickIndex);
       }
       Serial.println();
