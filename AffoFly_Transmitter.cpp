@@ -78,6 +78,7 @@ void txModeInit() {
 #endif
 
   Display_showModeScreen(TX_MODE);
+  delay(1000);
   
   switch (TX_MODE) {
     case MODE_CONTROL:
@@ -104,10 +105,9 @@ void txModeInit() {
       break;
 #endif
     case MODE_BIND:
-      //TODO:
+      Radio_bind();
       break;
   }
-  delay(1000);
 }
 
 void txModeProcess(uint32_t currentMillis) {
