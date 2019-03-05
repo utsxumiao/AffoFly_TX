@@ -63,13 +63,12 @@ void Radio_bind() {
   initMenuNodeItem(bindMenu->Items, 0, 0, "Channel: ..."); 
   initMenuNodeItem(bindMenu->Items, 1, 0, "");
   initMenuNodeItem(bindMenu->Items, 2, 0, "");
-  //Display_refreshMenu(bindMenu->Title, bindMenu->Items, bindMenu->ItemCount, bindMenu->Index);
   showMenu(bindMenu);
   uint8_t channel = findChannel();
   char strChannel[4];
   initMenuNodeItem(bindMenu->Items, 0, 0, strcat("Channel: ", itoa(channel, strChannel, 10))); 
   showMenu(bindMenu);
-  char* token = generateToken();
+  uint32_t token = generateToken();
   initMenuNodeItem(bindMenu->Items, 1, 0, "Token ready.");
   initMenuNodeItem(bindMenu->Items, 2, 0, "Waiting RX...");
   showMenu(bindMenu);
@@ -81,17 +80,11 @@ uint8_t findChannel() {
   return 120;
 }
 
-char * generateToken() {
-#ifdef V_BAT
-  //use battery reading to seed ramdom
-#else
-  initMenuNodeItem(bindMenu->Items, 1, 0, "Move Throttle");
-  showMenu(bindMenu);
-#endif
-  return "aaaa";
+uint32_t generateToken() {
+  return millis();
 }
 
-void bindRx(uint8_t channel, char* token) {
+void bindRx(uint8_t channel, uint32_t token) {
   radio.begin();
   radio.setPALevel(radioPaLevel);
   radio.setAutoAck(false);
@@ -106,16 +99,22 @@ void bindRx(uint8_t channel, char* token) {
   radio.printDetails();
 #endif
   bool bound = false;
+  TxBindData txBindData;
+  strcpy(txBindData.TxIdentifier, TX_IDENTIFIER);
+  txBindData.Token = token;
   while(!bound) {
-    bool txSent = radio.write(&token, sizeof(token));
+    bool txSent = radio.write(&txBindData, sizeof(txBindData));
     if(txSent && radio.isAckPayloadAvailable()) {
-      //update RX data in EEPROM
-      bound = true;
-      initMenuNodeItem(bindMenu->Items, 2, 0, "Bound!");
-      showMenu(bindMenu);
+      RxBindData rxBindData;
+      radio.read(&rxBindData, sizeof(rxBindData));
+      if (rxBindData.RxIdentifier == TX_IDENTIFIER && rxBindData.Token == token) {
+        //update RX data in EEPROM
+        bound = true;
+        initMenuNodeItem(bindMenu->Items, 2, 0, "Bound!");
+        showMenu(bindMenu);
+      }
     }
   }
-
 }
 
 #endif

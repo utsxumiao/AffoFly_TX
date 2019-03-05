@@ -61,6 +61,8 @@
 //#define DEBUG
 #define PROJECT_NAME        "AffoFly TX"
 #define PROJECT_VERSION     "v0.020"
+#define TX_IDENTIFIER       "affoflytx"
+#define RX_IDENTIFIER       "affoflyrx"
 
 #define MODE_CONTROL        0
 #define MODE_SIMULATOR      1

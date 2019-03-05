@@ -27,6 +27,16 @@ struct RxConfig {
   char    Name[10];
 };
 
+struct TxBindData {
+  char TxIdentifier[10];
+  uint32_t Token;
+};
+
+struct RxBindData {
+  char RxIdentifier[10];
+  uint32_t Token;
+};
+
 typedef struct menu_node_item {
   uint8_t Id;
   char* Menu;

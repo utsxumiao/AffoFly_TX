@@ -70,14 +70,15 @@ char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name
 const char menu_rx_setting_0[] = "Select";
 const char menu_rx_setting_1[] = "Rename";
 const char menu_rx_setting_2[] = "Bind";
-const char menu_rx_setting_3[] = "(Token)";
-const char menu_rx_setting_4[] = "(Channel)";
+//const char menu_rx_setting_3[] = "(Token)";
+//const char menu_rx_setting_4[] = "(Channel)";
 
 
 MenuNode* topMenu;
 MenuNode* currentMenu;
 MenuNode* rxSettingTemplate;
 MenuNode* rxRenameTemplate;
+RxConfig selectedRxConfig;
 
 void Menu_init() {
   Menu_initButtons();
@@ -187,12 +188,13 @@ void setupMenu()  {
 
   // RX Setting template --------------------
   rxSettingTemplate = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(rxSettingTemplate, "", 5);
+  initMenuNode(rxSettingTemplate, "", 4);
   initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, menu_rx_setting_0);
   initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, menu_rx_setting_1);
   initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, menu_rx_setting_2);
-  initMenuNodeItem(rxSettingTemplate->Items, 3, MENU_ID_RX_SETTING_TOKEN, menu_rx_setting_3);
-  initMenuNodeItem(rxSettingTemplate->Items, 4, MENU_ID_RX_SETTING_CHANNEL, menu_rx_setting_4);
+  //initMenuNodeItem(rxSettingTemplate->Items, 3, MENU_ID_RX_SETTING_TOKEN, menu_rx_setting_3);
+  //initMenuNodeItem(rxSettingTemplate->Items, 4, MENU_ID_RX_SETTING_CHANNEL, menu_rx_setting_4);
+  initMenuNodeItem(rxSettingTemplate->Items, 3, 0, "");
   rxSettingTemplate->Prev = rxMenu;  // Link back to the previous menu node
 
   // RX Rename template ---------------------
@@ -285,12 +287,14 @@ void selectMenu() {
 }
 
 void handleMenu(uint8_t menuId, char* title) {
-  if (menuId >= MENU_ID_RX_0 && menuId <= MENU_ID_RX_9) { // RX Name item has been selected
+  if (menuId >= MENU_ID_RX_0 && menuId <= MENU_ID_RX_9) { // Specific RX has been selected
+    selectedRxConfig = EEPROM_readRxConfig(menuId - MENU_ID_RX_0 + 1);
     rxSettingTemplate->ParentId = menuId;
     rxSettingTemplate->ParentMenu = title;
+    char strChannel[4];
+    initMenuNodeItem(rxSettingTemplate->Items, 3, 0, strcat("Channel: ", itoa(selectedRxConfig.RadioChannel, strChannel, 10)));
     currentMenu = rxSettingTemplate;
     currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
-
     showMenu(currentMenu);  // print menu
   }
   else if (menuId == MENU_ID_RX_SETTING_RENAME) {
@@ -320,6 +324,18 @@ void handleMenu(uint8_t menuId, char* title) {
         TX_MODE = MODE_STUDENT;
         break;
 #endif
+      case MENU_ID_RX_0:
+        
+      case MENU_ID_RX_1:
+      case MENU_ID_RX_2:
+      case MENU_ID_RX_3:
+      case MENU_ID_RX_4:
+      case MENU_ID_RX_5:
+      case MENU_ID_RX_6:
+      case MENU_ID_RX_7:
+      case MENU_ID_RX_8:
+      case MENU_ID_RX_9:
+      
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
         break;
@@ -369,128 +385,3 @@ void showRxRename(char* rxName) {
 void softReset() {
   asm volatile ("  jmp 0");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//========================================================================================
-
-//#ifdef BUDDY
-//#define ROOT_MENU_ITEM_COUNT  5
-//#else
-//#define ROOT_MENU_ITEM_COUNT  3
-//#endif
-//
-//char title[MENU_TITLE_LENGTH] = "TX MODE";
-//char rootItems[ROOT_MENU_ITEM_COUNT][MENU_ITEM_LENGTH] = {
-//  "CONTROL",
-//  "SIMULATOR",
-//#ifdef BUDDY
-//  "TRAINER",
-//  "STUDENT",
-//#endif
-//  "SETTING"
-//};
-//
-//uint8_t currentMenuIndex = 0;
-//
-//void Menu_init() {
-//  Menu_initButtons();
-//  showScreen();
-//}
-//
-//void Menu_initButtons() {
-//  Bounce backBounce = Bounce();
-//  backBounce.attach(BUTTON_BACK_PIN, INPUT_PULLUP);
-//  backBounce.interval(5);
-//  bounces[1] = backBounce;
-//  Bounce goBounce = Bounce();
-//  goBounce.attach(BUTTON_GO_PIN, INPUT_PULLUP);
-//  goBounce.interval(5);
-//  bounces[1] = goBounce;
-//  Bounce prevBounce = Bounce();
-//  prevBounce.attach(BUTTON_PREV_PIN, INPUT_PULLUP);
-//  prevBounce.interval(5);
-//  bounces[2] = prevBounce;
-//  Bounce nextBounce = Bounce();
-//  nextBounce.attach(BUTTON_NEXT_PIN, INPUT_PULLUP);
-//  nextBounce.interval(5);
-//  bounces[3] = nextBounce;
-//}
-//
-//void Menu_checkButtons() {
-//  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
-//    bounces[i].update();
-//    if (bounces[i].fell()) {
-//      switch (i) {
-//        case 0:
-//          back();
-//          break;
-//        case 1:
-//          go();
-//          break;
-//        case 2:
-//          prev();
-//          break;
-//        case 3:
-//          next();
-//          break;
-//        default:
-//          break;
-//      }
-//    }
-//  }
-//}
-//
-//void back() {
-//  //TODO:
-//}
-//
-//void go() {
-//  TX_MODE = currentMenuIndex;
-//}
-//
-//void prev() {
-//  if (currentMenuIndex <= 0) {
-//    currentMenuIndex = ROOT_MENU_ITEM_COUNT;
-//  }
-//  currentMenuIndex--;
-//  showScreen();
-//}
-//
-//void next() {
-//  if (currentMenuIndex >= ROOT_MENU_ITEM_COUNT - 1) {
-//    currentMenuIndex = 0;
-//  } else {
-//    currentMenuIndex++;
-//  }
-//  showScreen();
-//}
-//
-//void showScreen() {
-//  Display_refreshMenu(title, rootItems, ROOT_MENU_ITEM_COUNT, currentMenuIndex);
-//}
