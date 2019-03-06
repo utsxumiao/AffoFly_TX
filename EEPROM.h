@@ -2,7 +2,6 @@
 #define EEPROM_H_
 
 void EEPROM_ensureValid();
-uint16_t EEPROM_readRadioUniqueId();
 uint8_t EEPROM_readRadioPaLevel();
 uint8_t EEPROM_readCurrentRxId();
 RxConfig EEPROM_readRxConfig(uint8_t rxId);

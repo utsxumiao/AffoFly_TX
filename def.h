@@ -72,13 +72,10 @@
 #define MODE_MENU           5
 
 // EEPROM address 0-99 for general TX settings
-// Each RxConfig takes 20 bytes (current data use 16 bytes)
+// Each RxConfig takes 30 bytes (currently uses 20 bytes)
 // We allocate 10 RxConfig
-// EEPROM address 100-299 for 10 RxConfig
-#define EEPROM_SETTING_LENGTH           300
-#define RADIO_UNIQUE_ID_EEPROM_ADDRESS  0
-#define RADIO_UNIQUE_ID_LOWER_BOUNDARY  1000
-#define RADIO_UNIQUE_ID_UPPER_BOUNDARY  9999
+// EEPROM address 100-399 for 10 RxConfig
+#define EEPROM_SETTING_LENGTH           400
 
 #define RADIO_PA_LEVEL_EEPROM_ADDRESS   4
 #define RADIO_PA_LEVEL_LOWER_BOUNDARY   0
@@ -87,7 +84,7 @@
 #define CURRENT_RX_ID_EEPROM_ADDRESS    5
 
 #define RX_CONFIG_EEPROM_START_ADDRESS  100
-#define RX_CONFIG_ALLOCATED_BYTES       20
+#define RX_CONFIG_ALLOCATED_BYTES       30
 #define RADIO_RX_ID_LOWER_BOUNDARY      1
 #define RADIO_RX_ID_UPPER_BOUNDARY      10
 #define RADIO_CHANNEL_LOWER_BOUNDARY    100

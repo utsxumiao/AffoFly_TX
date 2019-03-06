@@ -19,7 +19,6 @@
 /**************************************************************************************/
 uint8_t PREVIOUS_TX_MODE = 255; //The initial value which should not be any valid MODE
 uint8_t TX_MODE;
-uint16_t TX_UNIQUE_ID;
 RxConfig CURRENT_RX_CONFIG;
 bool trimming = false;
 uint8_t trimmingStickIndex = 0;
@@ -147,14 +146,10 @@ void txModeProcess(uint32_t currentMillis) {
 void Control_init() {
   Control_initConfig();
   Control_initButtons();
-#ifdef DEBUG
-  Serial.print(F("TX Unique ID: ")); Serial.println(TX_UNIQUE_ID);
-#endif
   Control_resetData();
 }
 
 void Control_initConfig() {
-  TX_UNIQUE_ID = EEPROM_readRadioUniqueId();
   CURRENT_RX_CONFIG = EEPROM_readRxConfig(EEPROM_readCurrentRxId());
 }
 
@@ -220,7 +215,7 @@ void Control_initButtons() {
 }
 
 void Control_resetData() {
-  controlData.UniqueId = TX_UNIQUE_ID;
+  controlData.Token = CURRENT_RX_CONFIG.Token;
   controlData.Throttle = 1000;
   controlData.Yaw = 1500;
   controlData.Pitch = 1500;

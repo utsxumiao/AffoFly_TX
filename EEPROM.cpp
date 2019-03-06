@@ -6,16 +6,10 @@
 #include "EEPROM.h"
 
 void EEPROM_ensureValid() {
-  uint16_t radioUniqueId = EEPROM_readRadioUniqueId();
-  if (radioUniqueId == 0) {
+  uint8_t currentRxId = EEPROM_readCurrentRxId();
+  if (currentRxId == 0) {
     EEPROM_loadDefaults();
   }
-}
-
-uint16_t EEPROM_readRadioUniqueId() {
-  uint16_t radioUniqueId;
-  EEPROM.get(RADIO_UNIQUE_ID_EEPROM_ADDRESS, radioUniqueId);
-  return radioUniqueId;
 }
 
 uint8_t EEPROM_readRadioPaLevel() {
@@ -49,7 +43,6 @@ void EEPROM_loadDefaults() {
   for (int i = 0 ; i < EEPROM_SETTING_LENGTH ; i++) {
     EEPROM.update(i, 0);
   }
-  EEPROM.put(RADIO_UNIQUE_ID_EEPROM_ADDRESS, RADIO_UNIQUE_ID_LOWER_BOUNDARY);
   EEPROM.put(RADIO_PA_LEVEL_EEPROM_ADDRESS, RADIO_PA_LEVEL_UPPER_BOUNDARY);
   EEPROM.put(CURRENT_RX_ID_EEPROM_ADDRESS, RADIO_RX_ID_LOWER_BOUNDARY);
   for (uint8_t i = RADIO_RX_ID_LOWER_BOUNDARY; i <= RADIO_RX_ID_UPPER_BOUNDARY; i++) {

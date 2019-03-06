@@ -2,7 +2,7 @@
 #define TYPES_H_
 
 struct ControlData {
-  uint16_t UniqueId;
+  uint16_t Token;
   uint16_t Throttle;
   uint16_t Yaw;
   uint16_t Pitch;
@@ -18,13 +18,14 @@ struct ControlData {
 };
 
 struct RxConfig {
-  uint8_t Id;
-  uint8_t RadioChannel;
-  int8_t  ThrottleTrim;
-  int8_t  YawTrim;
-  int8_t  PitchTrim;
-  int8_t  RollTrim;
-  char    Name[10];
+  uint8_t   Id;
+  uint8_t   RadioChannel;
+  uint32_t  Token;
+  int8_t    ThrottleTrim;
+  int8_t    YawTrim;
+  int8_t    PitchTrim;
+  int8_t    RollTrim;
+  char      Name[10];
 };
 
 struct TxBindData {

@@ -37,8 +37,6 @@
 #define MENU_ID_RX_SETTING_SELECT   40
 #define MENU_ID_RX_SETTING_RENAME   41
 #define MENU_ID_RX_SETTING_BIND     42
-#define MENU_ID_RX_SETTING_TOKEN    43
-#define MENU_ID_RX_SETTING_CHANNEL  44
 
 #define MENU_ID_RX_RENAME_OK        50
 
@@ -59,9 +57,6 @@ const char menu_setting_1[] = "RX Setting";
 const char menu_setting_2[] = "Data Reset";
 const char menu_setting_3[] = "Restart";
 
-// TX_UniqueId menu items
-
-
 // RX meu items
 const char menu_rx_title[] = "RX SETTING";
 char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
@@ -70,8 +65,6 @@ char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name
 const char menu_rx_setting_0[] = "Select";
 const char menu_rx_setting_1[] = "Rename";
 const char menu_rx_setting_2[] = "Bind";
-//const char menu_rx_setting_3[] = "(Token)";
-//const char menu_rx_setting_4[] = "(Channel)";
 
 
 MenuNode* topMenu;
@@ -192,8 +185,6 @@ void setupMenu()  {
   initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, menu_rx_setting_0);
   initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, menu_rx_setting_1);
   initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, menu_rx_setting_2);
-  //initMenuNodeItem(rxSettingTemplate->Items, 3, MENU_ID_RX_SETTING_TOKEN, menu_rx_setting_3);
-  //initMenuNodeItem(rxSettingTemplate->Items, 4, MENU_ID_RX_SETTING_CHANNEL, menu_rx_setting_4);
   initMenuNodeItem(rxSettingTemplate->Items, 3, 0, "");
   rxSettingTemplate->Prev = rxMenu;  // Link back to the previous menu node
 
@@ -379,7 +370,7 @@ void showMenu(MenuNode* node) {
 }
 
 void showRxRename(char* rxName) {
-  //handleMenu(MENU_ID_RX_RENAME_OK, "RX3 Default");  // testing to change RX name here..
+  
 }
 
 void softReset() {

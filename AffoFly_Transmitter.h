@@ -2,7 +2,6 @@
 #define AFFOFLY_TRANSMITTER_H_
 
 extern uint8_t TX_MODE;
-extern uint16_t TX_UNIQUE_ID;
 extern RxConfig CURRENT_RX_CONFIG;
 extern Bounce bounces[BUTTON_COUNT];
 
