@@ -2,7 +2,7 @@
 #define TYPES_H_
 
 struct ControlData {
-  uint16_t Token;
+  uint32_t Token;
   uint16_t Throttle;
   uint16_t Yaw;
   uint16_t Pitch;

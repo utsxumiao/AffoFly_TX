@@ -39,7 +39,7 @@ void Radio_init() {
 
 void Radio_sendData(ControlData controlData) {
 //#ifdef DEBUG
-//  Serial.print("UniqueId: ");     Serial.print(controlData.UniqueId);
+//  Serial.print("Token: ");     Serial.print(controlData.Token);
 //  Serial.print("    Throttle: "); Serial.print(controlData.Throttle);
 //  Serial.print("    Yaw: ");      Serial.print(controlData.Yaw);
 //  Serial.print("    Pitch: ");    Serial.print(controlData.Pitch);
@@ -54,10 +54,16 @@ void Radio_sendData(ControlData controlData) {
 //  Serial.print("    Swd2: ");     Serial.print(controlData.Swd2);
 //  Serial.println();
 //#endif
+  controlData.Token = CURRENT_RX_CONFIG.Token;
   radio.write(&controlData, sizeof(ControlData));
 }
 
 void Radio_bind() {
+  radio.begin();
+  radio.setAutoAck(false);
+  radio.startListening();
+  radio.stopListening();
+  
   initMenuNode(bindMenu, "BIND", 3);
   bindMenu->Index = -1;
   initMenuNodeItem(bindMenu->Items, 0, 0, "Channel: ..."); 
@@ -76,8 +82,35 @@ void Radio_bind() {
 }
 
 uint8_t findChannel() {
-  delay(2000);
-  return 120;
+  uint8_t loads[RADIO_CHANNEL_UPPER_BOUNDARY - RADIO_CHANNEL_LOWER_BOUNDARY];
+  for (int8_t i = 0; i < RADIO_SCAN_REPEATS; i++) {
+    for (int8_t j = RADIO_CHANNEL_LOWER_BOUNDARY; j <= RADIO_CHANNEL_UPPER_BOUNDARY; j++) {
+      radio.setChannel(j);
+      radio.startListening();
+      delayMicroseconds(128);
+      radio.stopListening();
+      if ( radio.testCarrier() ){
+        loads[j]++;
+      }
+    }
+  }
+#ifdef DEBUG
+  for (int8_t i = RADIO_CHANNEL_LOWER_BOUNDARY; i <= RADIO_CHANNEL_UPPER_BOUNDARY; i++) {
+    Serial.print(loads[i]);   Serial.print("    ");
+  }
+  Serial.println();
+#endif
+  uint8_t minValue = RADIO_SCAN_REPEATS;
+  for (int8_t i = RADIO_CHANNEL_LOWER_BOUNDARY; i <= RADIO_CHANNEL_UPPER_BOUNDARY; i++) {
+    if (loads[i] == 0) {
+      return i;
+    } else {
+      if (loads[i] < minValue) {
+        minValue = loads[i];
+      }
+    }
+  }
+  return minValue;
 }
 
 uint32_t generateToken() {
@@ -85,14 +118,10 @@ uint32_t generateToken() {
 }
 
 void bindRx(uint8_t channel, uint32_t token) {
-  radio.begin();
   radio.setPALevel(radioPaLevel);
-  radio.setAutoAck(false);
   radio.setChannel(channel);
   radio.setDataRate(RF24_250KBPS);
-  radio.openWritingPipe(0xE8E8F0F0E1LL);
-  radio.startListening();
-  radio.stopListening();
+  radio.openWritingPipe(RADIO_PIPE);
 #ifdef DEBUG
   Serial.print(F("CHANNEL          = ")); Serial.println(channel);
   printf_begin();

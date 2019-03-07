@@ -61,6 +61,7 @@
 //#define DEBUG
 #define PROJECT_NAME        "AffoFly TX"
 #define PROJECT_VERSION     "v0.020"
+#define RADIO_PIPE          0xE8E8F0F0E1LL
 #define TX_IDENTIFIER       "affoflytx"
 #define RX_IDENTIFIER       "affoflyrx"
 
@@ -100,5 +101,8 @@
 
 // Button Debounce
 #define BUTTON_DEBOUNCE_MS             5
+
+// Radio Channel Scan Repeats
+#define RADIO_SCAN_REPEATS             100
 
 #endif /* DEF_H_ */

@@ -215,7 +215,6 @@ void Control_initButtons() {
 }
 
 void Control_resetData() {
-  controlData.Token = CURRENT_RX_CONFIG.Token;
   controlData.Throttle = 1000;
   controlData.Yaw = 1500;
   controlData.Pitch = 1500;
