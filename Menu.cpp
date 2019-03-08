@@ -6,7 +6,7 @@
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
 #include "MENU.h"
-#include "Display.h"
+#include "Screen.h"
 
 #define MENU_ID_TOP_CONTROL         10
 #ifdef SIMULATOR
@@ -41,6 +41,8 @@
 #define MENU_ID_RX_RENAME_OK        50
 
 #define RX_NAME_MAX_LEN             13 //TODO: this should move to each screen and name it more generic like MAX-LINE-LENGTH
+#define ITEM_EDIT_NOT_SELECTED      100
+
 
 // Top menu items
 const char menu_top_title[] = "MODE";   // Menu title
@@ -60,6 +62,7 @@ const char menu_setting_3[] = "Restart";
 // RX meu items
 const char menu_rx_title[] = "RX SETTING";
 char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
+const char allowed_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
 
 // RX setting menu items
 const char menu_rx_setting_0[] = "Select";
@@ -71,6 +74,7 @@ MenuNode* topMenu;
 MenuNode* currentMenu;
 MenuNode* rxSettingTemplate;
 MenuNode* rxRenameTemplate;
+MenuItemEdit itemEdit;
 RxConfig selectedRxConfig;
 
 void Menu_init() {
@@ -191,88 +195,170 @@ void setupMenu()  {
   // RX Rename template ---------------------
   rxRenameTemplate = (MenuNode*)malloc(sizeof(MenuNode));
   initMenuNode(rxRenameTemplate, "", 0);
+  rxRenameTemplate->ExecFunc = showRxRename;
   rxRenameTemplate->Prev = rxSettingTemplate;  // Link back to the previous menu node
+  itemEdit.Index = ITEM_EDIT_NOT_SELECTED;
+
 }
 
 void initMenuNode(MenuNode* node, char* title, uint8_t itemCount) {
   node->Title = title;
   node->Index = 0;
+  node->ScrollIndex = 0;
   node->ItemCount = itemCount;
-  node->LookupItemCount = itemCount;
   node->ParentId = 0;
   node->ParentMenu = NULL;
   node->Prev = NULL;
+  node->ExecFunc = NULL;
   node->Items = (MenuNodeItem*)malloc(itemCount * sizeof(MenuNodeItem));
 }
-
-//void initMenuNodeWithParentData(MenuNode* node, char* title, uint8_t itemCount, char *parentMenu, uint8_t parentId) {
-//  initMenuNode(node, title, itemCount);
-//  node->ParentId = parentId;
-//  node->ParentMenu = parentMenu;
-//}
 
 void initMenuNodeItem(MenuNodeItem* items, uint8_t index, uint8_t id, char* menu)  {
   MenuNodeItem* nodeItem = &items[index];
   nodeItem->Id = id;
   nodeItem->Menu = menu;
   nodeItem->Item = NULL;
+  nodeItem->Selectable = true;
 }
 
-void initMenuNodeItemWithLookup(MenuNodeItem* items, uint8_t index, uint8_t id, char* menu)  {
+void initMenuNodeItemWithSelectable(MenuNodeItem* items, uint8_t index, uint8_t id, char* menu, bool selectable)  {
   MenuNodeItem* nodeItem = &items[index];
   initMenuNodeItem(items, index, id, menu);
+  nodeItem->Selectable = selectable;
 }
 
 void navigateMenu(MenuNode* node, int8_t upOrDown) {
+  bool itemEditMode = false;
   if (node) {
-    if (upOrDown == 1)  {
-      node->Index++;
-      if (node->Index >= node->LookupItemCount) {
-        node->Index = 0;
+    if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
+      if (upOrDown == 1)  {
+        node->Index++;
+        if (node->Index >= node->ItemCount) {
+          node->Index = 0;
+        }
+
+//        // work out the new ScrollIndex for the pagination
+//        if (node->Index == 0) {
+//          node->ScrollIndex = 0;
+//        }
+//        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
+//                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MAX_ROWS)) {
+//          // do nothing
+//        }
+//        else  {
+//          node->ScrollIndex++;
+//        }
+      }
+      else if (upOrDown == -1)  {
+        if (node->Index == 0)  {
+          node->Index = node->ItemCount - 1;
+        }
+        else  {
+          node->Index--;
+        }
+
+//        // work out the new ScrollIndex for the pagination
+//        if (node->Index == 0) {
+//          node->ScrollIndex = 0;
+//        }
+//        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
+//                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MAX_ROWS)) {
+//          // do nothing
+//        }
+//        else  {
+//          if (node->ScrollIndex == 0)  {
+//            node->ScrollIndex = node->ItemCount - SCREEN_MAX_ROWS + SCREEN_MENU_HEADER_ROWS;
+//          }
+//          else  {
+//            node->ScrollIndex--;
+//          }
+//        }
       }
     }
-    else if (upOrDown == -1)  {
-      if (node->Index == 0)  {
-        node->Index = node->LookupItemCount - 1;
+    else  {
+      itemEditMode = true;
+      itemEdit.Value[itemEdit.Index] = getNextAllowedChar(itemEdit.Value[itemEdit.Index], upOrDown);
+    }
+
+    showMenu(node);
+
+    if (node->ExecFunc) {
+      node->ExecFunc(false);
+    }
+  }
+}
+
+uint8_t getNextAllowedChar(uint8_t ch, int8_t upOrDown) {
+  uint8_t len = strlen(allowed_chars);
+  char *pch = strchr(allowed_chars, ch);
+  uint8_t index = 0;
+
+  if (pch)  {
+    index = (pch - allowed_chars);
+
+    if (upOrDown == 1) { // up
+      if (index >= len - 1) {
+        index = 0;
       }
       else  {
-        node->Index--;
+        index++;
       }
     }
-    showMenu(node);  // print menu
+    else  { // down
+      if (index == 0)  {
+        index = len - 1;
+      }
+      else  {
+        index--;
+      }
+    }
   }
+  return allowed_chars[index];
 }
 
 void selectMenu() {
   if (currentMenu) {
-    MenuNode* temp = NULL;
+    if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
+      MenuNode* temp = NULL;
 
-    bool lookupData = true;
-    int j = 0;
-    uint8_t menuId = 0;
-    char* title;
+      uint8_t menuId = 0;
+      char* title;
 
-    for (int i = 0; i < currentMenu->ItemCount; i++) {
-      lookupData = true;
-
-      if (lookupData) {
-        if (currentMenu->Index == j)  {
+      for (int i = 0; i < currentMenu->ItemCount; i++) {
+        if (currentMenu->Index == i && currentMenu->Items[i].Selectable) {
           temp = currentMenu->Items[i].Item;
           menuId = currentMenu->Items[i].Id;
           title = currentMenu->Items[i].Menu;
         }
-        j++;
+      }
+
+      if (temp) {
+        currentMenu = temp;
+        currentMenu->Index = 0;
+        currentMenu->ScrollIndex = 0;
+
+        showMenu(currentMenu);
+      }
+      else  {
+        handleMenu(menuId, title);
       }
     }
+    else  {
+      showMenu(currentMenu);
 
-    if (temp) {
-      currentMenu = temp;
-      currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
-      showMenu(currentMenu);  // print menu
-    }
-    else  { // No more sub-menu. Take action now
-      //      Serial.println("No sub-menu found. Handling the menu"); // for testing only
-      handleMenu(menuId, title); // Id distinguishes each menu
+      itemEdit.Index++;
+      if (itemEdit.Index >= RX_NAME_MAX_LEN)  {
+        itemEdit.Index = 0;
+        // save the data
+        if (currentMenu->ExecFunc)  {
+          currentMenu->ExecFunc(true);
+        }
+      }
+      else  {
+        if (currentMenu->ExecFunc)  {
+          currentMenu->ExecFunc(false);
+        }
+      }
     }
   }
 }
@@ -286,6 +372,7 @@ void handleMenu(uint8_t menuId, char* title) {
     initMenuNodeItem(rxSettingTemplate->Items, 3, 0, strcat("Channel: ", itoa(selectedRxConfig.RadioChannel, strChannel, 10)));
     currentMenu = rxSettingTemplate;
     currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
+    currentMenu->ScrollIndex = 0;
     showMenu(currentMenu);  // print menu
   }
   else if (menuId == MENU_ID_RX_SETTING_RENAME) {
@@ -295,7 +382,13 @@ void handleMenu(uint8_t menuId, char* title) {
     currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
 
     showMenu(currentMenu);  // print menu
-    showRxRename(rxRenameTemplate->ParentMenu);
+
+    if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
+      strcpy(itemEdit.Value, rxRenameTemplate->ParentMenu);
+      itemEdit.Index = 0;
+    }
+    
+    showRxRename(false);
   }
   else  {
     switch (menuId) {
@@ -316,7 +409,7 @@ void handleMenu(uint8_t menuId, char* title) {
         break;
 #endif
       case MENU_ID_RX_0:
-        
+
       case MENU_ID_RX_1:
       case MENU_ID_RX_2:
       case MENU_ID_RX_3:
@@ -326,7 +419,7 @@ void handleMenu(uint8_t menuId, char* title) {
       case MENU_ID_RX_7:
       case MENU_ID_RX_8:
       case MENU_ID_RX_9:
-      
+
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
         break;
@@ -346,6 +439,7 @@ void handleMenu(uint8_t menuId, char* title) {
 
 void goBackMenu() {
   if (currentMenu) {
+    itemEdit.Index = ITEM_EDIT_NOT_SELECTED;
     if (currentMenu->Prev) {
       currentMenu = currentMenu->Prev;
     }
@@ -369,8 +463,13 @@ void showMenu(MenuNode* node) {
   }
 }
 
-void showRxRename(char* rxName) {
-  
+void showRxRename(bool saveMode) {
+  if (saveMode) {
+    handleMenu(MENU_ID_RX_RENAME_OK, itemEdit.Value);  // save the RX name from the user
+    goBackMenu();
+  }else {
+    //call screen to show current index
+  }
 }
 
 void softReset() {

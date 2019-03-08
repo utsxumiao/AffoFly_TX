@@ -4,10 +4,10 @@
 #include "def.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
-#include "Display.h"
+#include "Screen.h"
 #include <U8g2lib.h>
 
-#ifdef DISPLAY_LCD_SSD1306_128X64_HW_I2C
+#ifdef SCREEN_LCD_SSD1306_128X64_HW_I2C
 
 #define OLED_address   0x3C
 U8G2_SSD1306_128X64_NONAME_2_HW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);

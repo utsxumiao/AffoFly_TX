@@ -4,9 +4,9 @@
 #include "def.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
-#include "Display.h"
+#include "Screen.h"
 
-#ifdef DISPLAY_LCD_1602A_HW_I2C
+#ifdef SCREEN_LCD_1602A_HW_I2C
 
 void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index) {
   

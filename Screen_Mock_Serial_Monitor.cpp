@@ -4,9 +4,9 @@
 #include "def.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
-#include "Display.h"
+#include "Screen.h"
 
-#ifdef DISPLAY_SERIAL_MONITOR
+#ifdef SCREEN_SERIAL_MONITOR
 
 const uint8_t SCREEN_WIDTH = 30;
 const uint8_t SCREEN_LINES = 8;

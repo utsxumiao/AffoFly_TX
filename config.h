@@ -72,9 +72,9 @@
 
 /* DISPLAY SETUP */
 /************************************************************************************/
-//#define DISPLAY_LCD_1602A_HW_I2C
-//#define DISPLAY_LCD_SSD1306_128X64_HW_I2C
-#define DISPLAY_SERIAL_MONITOR
+//#define SCREEN_LCD_1602A_HW_I2C
+//#define SCREEN_LCD_SSD1306_128X64_HW_I2C
+#define SCREEN_SERIAL_MONITOR
 
 #define SHOW_RATE
 //anything related to display

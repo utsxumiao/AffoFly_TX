@@ -10,7 +10,7 @@
 #include "CPPM.h"
 #include "EEPROM.h"
 #include "Menu.h"
-#include "Display.h"
+#include "Screen.h"
 #include "Radio.h"
 
 
@@ -46,7 +46,7 @@ uint16_t loopInterval = 10; //To loop 100 times per second this value should be 
 ControlData controlData;
 
 void setup() {
-#if defined(DEBUG) || defined(DISPLAY_SERIAL_MONITOR)
+#if defined(DEBUG) || defined(SCREEN_SERIAL_MONITOR)
   Serial.begin(115200);
 #endif
   EEPROM_ensureValid();

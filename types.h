@@ -42,7 +42,7 @@ typedef struct menu_node_item {
   uint8_t Id;
   char* Menu;
   struct menu_node* Item;
-  //void (*LookupFunc)(bool*);
+  bool Selectable;
 } MenuNodeItem;
 
 typedef struct menu_node {
@@ -50,10 +50,17 @@ typedef struct menu_node {
   menu_node* Prev;
   MenuNodeItem* Items;
   uint8_t Index;
+  uint8_t ScrollIndex;
   uint8_t ItemCount;
-  uint8_t LookupItemCount;
   uint8_t ParentId;
   char* ParentMenu;
+  void (*ExecFunc)(bool);
 } MenuNode;
+
+typedef struct menu_item_edit {
+  //char Value[RX_NAME_MAX_LEN + 1];
+  char* Value;
+  uint8_t Index;
+} MenuItemEdit;
 
 #endif /* TYPES_H_ */
