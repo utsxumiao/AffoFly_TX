@@ -394,23 +394,13 @@ void handleMenu(uint8_t menuId, char* title) {
         TX_MODE = MODE_STUDENT;
         break;
 #endif
-      case MENU_ID_RX_0:
-
-      case MENU_ID_RX_1:
-      case MENU_ID_RX_2:
-      case MENU_ID_RX_3:
-      case MENU_ID_RX_4:
-      case MENU_ID_RX_5:
-      case MENU_ID_RX_6:
-      case MENU_ID_RX_7:
-      case MENU_ID_RX_8:
-      case MENU_ID_RX_9:
-
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
         break;
       case MENU_ID_RX_RENAME_OK:
-        strcpy(rxRenameTemplate->ParentMenu, title);
+        //strcpy(rxRenameTemplate->ParentMenu, title);
+        strcpy(selectedRxConfig.Name, title);
+        EEPROM_writeRxConfig(selectedRxConfig);
         break;
       case MENU_ID_SETTING_SOFT_RST:
         softReset();
@@ -466,14 +456,9 @@ void showRxRename(bool saveMode) {
   if (saveMode) {
     handleMenu(MENU_ID_RX_RENAME_OK, itemEdit.Value);  // save the RX name from the user
     goBackMenu();
-  }else {
-    //call screen to show current index
-    // This part is handled in handleMenu(). So, leave this part empty
-    ;
   }
 }
 
 void softReset() {
   asm volatile ("  jmp 0");
 }
-

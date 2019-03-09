@@ -8,9 +8,6 @@
 
 #ifdef SCREEN_SERIAL_MONITOR
 
-//const uint8_t SCREEN_WIDTH = 30;  // moved to config.h
-//const uint8_t SCREEN_LINES = 8;
-
 void Display_showWelcomeScreen(char* projectName, char* projectVersion) {
   Serial.println(F("================================"));
   Serial.println(F("=                              ="));
@@ -66,13 +63,13 @@ void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_
     Serial.println();
   }
   Serial.println(F("================================"));
-  
+
   Serial.print(F("= ")); Serial.print(title);
   for (uint8_t i = 0; i < SCREEN_WIDTH - strlen(title) - 1; i++) {
     Serial.print(F(" "));
   }
   Serial.println(F("="));
-  
+
   Serial.println(F("=------------------------------="));
 
   if (displayFunc)  {
@@ -99,13 +96,13 @@ void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_
   for (uint8_t i = 0; i < SCREEN_LINES - count - 2; i++) {
     Serial.println(F("=                              ="));
   }
-  
+
   Serial.println(F("================================"));
 }
 
 void Display_showRxRename(uint8_t *lineCount) {
   uint8_t i = 0;
-  
+
   Serial.print("= ");
   Serial.print(itemEdit.Value);
   for (uint8_t j = 0; j < SCREEN_WIDTH - strlen(itemEdit.Value) - 1; j++) {

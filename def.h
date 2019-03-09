@@ -105,4 +105,27 @@
 // Radio Channel Scan Repeats
 #define RADIO_SCAN_REPEATS             100
 
+// Screen Settings
+#if defined(SCREEN_LCD_1602A_HW_I2C)
+  #define SCREEN_WIDTH              30
+  #define SCREEN_LINES              8
+  #define SCREEN_MENU_LINES         8
+  #define SCREEN_MENU_HEADER_ROWS   0
+  #define LINE_ITEM_MAX_LEN         12  
+
+#elif defined(SCREEN_LCD_SSD1306_128X64_HW_I2C)
+  #define SCREEN_WIDTH              30
+  #define SCREEN_LINES              8
+  #define SCREEN_MENU_LINES         8
+  #define SCREEN_MENU_HEADER_ROWS   0
+  #define LINE_ITEM_MAX_LEN         12  
+
+#elif defined(SCREEN_SERIAL_MONITOR)
+  #define SCREEN_WIDTH              30
+  #define SCREEN_LINES              8
+  #define SCREEN_MENU_LINES         8
+  #define SCREEN_MENU_HEADER_ROWS   0
+  #define LINE_ITEM_MAX_LEN         12  
+#endif
+
 #endif /* DEF_H_ */

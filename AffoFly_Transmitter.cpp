@@ -57,7 +57,7 @@ void setup() {
 #ifdef DEBUG
   EEPROM_dumpAll();
 #endif
-  TX_MODE = MODE_CONTROL; // changed to MODE_MENU for testing only
+  TX_MODE = MODE_CONTROL;
   pinMode(FN_PIN, INPUT_PULLUP);
   if (digitalRead(FN_PIN) == LOW) {
     TX_MODE = MODE_MENU;
