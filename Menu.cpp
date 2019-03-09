@@ -5,44 +5,8 @@
 #include "EEPROM.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
-#include "MENU.h"
+#include "Menu.h"
 #include "Screen.h"
-
-#define MENU_ID_TOP_CONTROL         10
-#ifdef SIMULATOR
-#define MENU_ID_TOP_SIMULATOR       11
-#endif
-#ifdef BUDDY
-#define MENU_ID_TOP_TRAINER         12
-#define MENU_ID_TOP_STUDENT         13
-#endif
-#define MENU_ID_TOP_SETTING         14
-
-#define MENU_ID_SETTING_TX          20
-#define MENU_ID_SETTING_RX          21
-#define MENU_ID_SETTING_DATA_RST    22
-#define MENU_ID_SETTING_SOFT_RST    23
-
-#define MENU_ID_RX_0                30
-#define MENU_ID_RX_1                31
-#define MENU_ID_RX_2                32
-#define MENU_ID_RX_3                33
-#define MENU_ID_RX_4                34
-#define MENU_ID_RX_5                35
-#define MENU_ID_RX_6                36
-#define MENU_ID_RX_7                37
-#define MENU_ID_RX_8                38
-#define MENU_ID_RX_9                39
-
-#define MENU_ID_RX_SETTING_SELECT   40
-#define MENU_ID_RX_SETTING_RENAME   41
-#define MENU_ID_RX_SETTING_BIND     42
-
-#define MENU_ID_RX_RENAME_OK        50
-
-#define RX_NAME_MAX_LEN             13 //TODO: this should move to each screen and name it more generic like MAX-LINE-LENGTH
-#define ITEM_EDIT_NOT_SELECTED      100
-
 
 // Top menu items
 const char menu_top_title[] = "MODE";   // Menu title
@@ -61,7 +25,7 @@ const char menu_setting_3[] = "Restart";
 
 // RX meu items
 const char menu_rx_title[] = "RX SETTING";
-char menu_rx[][RX_NAME_MAX_LEN] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
+char menu_rx[][LINE_ITEM_MAX_LEN + 1] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
 const char allowed_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
 
 // RX setting menu items
@@ -69,12 +33,12 @@ const char menu_rx_setting_0[] = "Select";
 const char menu_rx_setting_1[] = "Rename";
 const char menu_rx_setting_2[] = "Bind";
 
-
 MenuNode* topMenu;
 MenuNode* currentMenu;
 MenuNode* rxSettingTemplate;
 MenuNode* rxRenameTemplate;
 MenuItemEdit itemEdit;
+MenuPagination pagination;
 RxConfig selectedRxConfig;
 
 void Menu_init() {
@@ -197,8 +161,21 @@ void setupMenu()  {
   initMenuNode(rxRenameTemplate, "", 0);
   rxRenameTemplate->ExecFunc = showRxRename;
   rxRenameTemplate->Prev = rxSettingTemplate;  // Link back to the previous menu node
+
+  // initialize itemEdit
+  itemEdit.Value = (char*)malloc(LINE_ITEM_MAX_LEN + 1);
+  memset(itemEdit.Value, 0, LINE_ITEM_MAX_LEN + 1);
   itemEdit.Index = ITEM_EDIT_NOT_SELECTED;
 
+  // initialize pagination
+  setPagination(0);
+
+}
+
+void setPagination(uint8_t scrollIndex) {
+  // initialize pagination
+  pagination.StartIndex = scrollIndex;
+  pagination.EndIndex = pagination.StartIndex + SCREEN_MENU_LINES - 1;
 }
 
 void initMenuNode(MenuNode* node, char* title, uint8_t itemCount) {
@@ -237,17 +214,17 @@ void navigateMenu(MenuNode* node, int8_t upOrDown) {
           node->Index = 0;
         }
 
-//        // work out the new ScrollIndex for the pagination
-//        if (node->Index == 0) {
-//          node->ScrollIndex = 0;
-//        }
-//        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
-//                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MAX_ROWS)) {
-//          // do nothing
-//        }
-//        else  {
-//          node->ScrollIndex++;
-//        }
+        // work out the new ScrollIndex for the pagination
+        if (node->Index == 0) {
+          node->ScrollIndex = 0;
+        }
+        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
+                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MENU_LINES)) {
+          // do nothing
+        }
+        else  {
+          node->ScrollIndex++;
+        }
       }
       else if (upOrDown == -1)  {
         if (node->Index == 0)  {
@@ -257,33 +234,30 @@ void navigateMenu(MenuNode* node, int8_t upOrDown) {
           node->Index--;
         }
 
-//        // work out the new ScrollIndex for the pagination
-//        if (node->Index == 0) {
-//          node->ScrollIndex = 0;
-//        }
-//        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
-//                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MAX_ROWS)) {
-//          // do nothing
-//        }
-//        else  {
-//          if (node->ScrollIndex == 0)  {
-//            node->ScrollIndex = node->ItemCount - SCREEN_MAX_ROWS + SCREEN_MENU_HEADER_ROWS;
-//          }
-//          else  {
-//            node->ScrollIndex--;
-//          }
-//        }
+        // work out the new ScrollIndex for the pagination
+        if (node->Index == 0) {
+          node->ScrollIndex = 0;
+        }
+        else if (node->Index >= (node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) &&
+                 node->Index < ((node->ScrollIndex - SCREEN_MENU_HEADER_ROWS) + SCREEN_MENU_LINES)) {
+          // do nothing
+        }
+        else  {
+          if (node->ScrollIndex == 0)  {
+            node->ScrollIndex = node->ItemCount - SCREEN_MENU_LINES + SCREEN_MENU_HEADER_ROWS;
+          }
+          else  {
+            node->ScrollIndex--;
+          }
+        }
       }
+      setPagination(node->ScrollIndex);
+      showMenu(node);
     }
     else  {
       itemEditMode = true;
       itemEdit.Value[itemEdit.Index] = getNextAllowedChar(itemEdit.Value[itemEdit.Index], upOrDown);
-    }
-
-    showMenu(node);
-
-    if (node->ExecFunc) {
-      node->ExecFunc(false);
+      showMenuItemEditMode(node);
     }
   }
 }
@@ -316,20 +290,29 @@ uint8_t getNextAllowedChar(uint8_t ch, int8_t upOrDown) {
   return allowed_chars[index];
 }
 
+MenuNodeItem* getCurrentMenuNodeItem(MenuNode* node)  {
+  if (node) {
+    for (int i = 0; i < node->ItemCount; i++) {
+      if (node->Index == i && node->Items[i].Selectable) {
+        return &(node->Items[i]);
+      }
+    }
+  }
+  return NULL;
+}
+
 void selectMenu() {
   if (currentMenu) {
     if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
       MenuNode* temp = NULL;
-
+      MenuNodeItem* selectedNodeItem = getCurrentMenuNodeItem(currentMenu);
       uint8_t menuId = 0;
       char* title;
 
-      for (int i = 0; i < currentMenu->ItemCount; i++) {
-        if (currentMenu->Index == i && currentMenu->Items[i].Selectable) {
-          temp = currentMenu->Items[i].Item;
-          menuId = currentMenu->Items[i].Id;
-          title = currentMenu->Items[i].Menu;
-        }
+      if (selectedNodeItem) {
+        temp = selectedNodeItem->Item;
+        menuId = selectedNodeItem->Id;
+        title = selectedNodeItem->Menu;
       }
 
       if (temp) {
@@ -337,17 +320,21 @@ void selectMenu() {
         currentMenu->Index = 0;
         currentMenu->ScrollIndex = 0;
 
+        // initialize pagination
+        setPagination(currentMenu->ScrollIndex);
+        
         showMenu(currentMenu);
       }
       else  {
+        // initialize pagination
+        setPagination(0);
+
         handleMenu(menuId, title);
       }
     }
     else  {
-      showMenu(currentMenu);
-
       itemEdit.Index++;
-      if (itemEdit.Index >= RX_NAME_MAX_LEN)  {
+      if (itemEdit.Index >= LINE_ITEM_MAX_LEN)  {
         itemEdit.Index = 0;
         // save the data
         if (currentMenu->ExecFunc)  {
@@ -355,9 +342,10 @@ void selectMenu() {
         }
       }
       else  {
-        if (currentMenu->ExecFunc)  {
-          currentMenu->ExecFunc(false);
+        if (itemEdit.Value[itemEdit.Index] == '\0') {
+          itemEdit.Value[itemEdit.Index] = ' ';   // add a space if null char is found.
         }
+        showMenuItemEditMode(currentMenu);
       }
     }
   }
@@ -376,19 +364,17 @@ void handleMenu(uint8_t menuId, char* title) {
     showMenu(currentMenu);  // print menu
   }
   else if (menuId == MENU_ID_RX_SETTING_RENAME) {
-    rxRenameTemplate->ParentId = rxRenameTemplate->ParentId;
+    rxRenameTemplate->ParentId = MENU_ID_RX_SETTING_RENAME; // rxRenameTemplate->ParentId;
     rxRenameTemplate->ParentMenu = rxSettingTemplate->ParentMenu;
     currentMenu = rxRenameTemplate;
     currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
 
-    showMenu(currentMenu);  // print menu
-
     if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
+      memset(itemEdit.Value, 0, LINE_ITEM_MAX_LEN + 1); // clear the string first
       strcpy(itemEdit.Value, rxRenameTemplate->ParentMenu);
       itemEdit.Index = 0;
     }
-    
-    showRxRename(false);
+    showMenuItemEditMode(currentMenu);
   }
   else  {
     switch (menuId) {
@@ -443,11 +429,16 @@ void goBackMenu() {
     if (currentMenu->Prev) {
       currentMenu = currentMenu->Prev;
     }
+    setPagination(currentMenu->ScrollIndex);
     showMenu(currentMenu);  // print menu
   }
 }
 
 void showMenu(MenuNode* node) {
+  showMenu(node, NULL);
+}
+
+void showMenu(MenuNode* node, void (*displayFunc)(uint8_t*))  {
   if (node) {
     char* title;
     if (node->ParentMenu) {
@@ -455,12 +446,20 @@ void showMenu(MenuNode* node) {
     } else {
       title = node->Title;
     }
-    Display_refreshMenu(title, node->Items, node->ItemCount, node->Index);
+    Display_refreshMenu(title, node->Items, node->ItemCount, node->Index, displayFunc);
   } else {
 #ifdef DEBUG
     Serial.println(F("Menu not set!"));
 #endif
   }
+}
+
+void showMenuItemEditMode(MenuNode* node) {
+    switch (node->ParentId) {
+      case MENU_ID_RX_SETTING_RENAME:
+        showMenu(node, Display_showRxRename);  // print menu
+        break;
+    }
 }
 
 void showRxRename(bool saveMode) {
@@ -469,9 +468,12 @@ void showRxRename(bool saveMode) {
     goBackMenu();
   }else {
     //call screen to show current index
+    // This part is handled in handleMenu(). So, leave this part empty
+    ;
   }
 }
 
 void softReset() {
   asm volatile ("  jmp 0");
 }
+

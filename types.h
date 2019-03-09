@@ -58,9 +58,13 @@ typedef struct menu_node {
 } MenuNode;
 
 typedef struct menu_item_edit {
-  //char Value[RX_NAME_MAX_LEN + 1];
   char* Value;
   uint8_t Index;
 } MenuItemEdit;
+
+typedef struct menu_pagination  {
+  uint8_t StartIndex;
+  uint8_t EndIndex;
+} MenuPagination;
 
 #endif /* TYPES_H_ */
