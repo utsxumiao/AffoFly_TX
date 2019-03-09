@@ -12,6 +12,10 @@
 #include "printf.h"
 #include "Radio.h"
 
+uint32_t previousRadioSendTime = 0;
+static const uint16_t radioSendInterval = 20000; // 50p/s
+
+
 /**************************************************************************************/
 /***************                       NRF24                       ********************/
 /**************************************************************************************/
@@ -37,25 +41,28 @@ void Radio_init() {
 #endif
 }
 
-void Radio_sendData(ControlData controlData) {
-//#ifdef DEBUG
-//  Serial.print("Token: ");     Serial.print(controlData.Token);
-//  Serial.print("    Throttle: "); Serial.print(controlData.Throttle);
-//  Serial.print("    Yaw: ");      Serial.print(controlData.Yaw);
-//  Serial.print("    Pitch: ");    Serial.print(controlData.Pitch);
-//  Serial.print("    Roll: ");     Serial.print(controlData.Roll);
-//  Serial.print("    Aux1: ");     Serial.print(controlData.Aux1);
-//  Serial.print("    Aux2: ");     Serial.print(controlData.Aux2);
-//  Serial.print("    Aux3: ");     Serial.print(controlData.Aux3);
-//  Serial.print("    Aux4: ");     Serial.print(controlData.Aux4);
-//  Serial.print("    Aux5: ");     Serial.print(controlData.Aux5);
-//  Serial.print("    Aux6: ");     Serial.print(controlData.Aux6);
-//  Serial.print("    Swd1: ");     Serial.print(controlData.Swd1);
-//  Serial.print("    Swd2: ");     Serial.print(controlData.Swd2);
-//  Serial.println();
-//#endif
-  controlData.Token = CURRENT_RX_CONFIG.Token;
-  radio.write(&controlData, sizeof(ControlData));
+void Radio_sendData(ControlData controlData, uint32_t currentTime) {
+  if (currentTime - previousRadioSendTime >= radioSendInterval) {
+    previousRadioSendTime = currentTime;
+    //#ifdef DEBUG
+    //  Serial.print("Token: ");     Serial.print(controlData.Token);
+    //  Serial.print("    Throttle: "); Serial.print(controlData.Throttle);
+    //  Serial.print("    Yaw: ");      Serial.print(controlData.Yaw);
+    //  Serial.print("    Pitch: ");    Serial.print(controlData.Pitch);
+    //  Serial.print("    Roll: ");     Serial.print(controlData.Roll);
+    //  Serial.print("    Aux1: ");     Serial.print(controlData.Aux1);
+    //  Serial.print("    Aux2: ");     Serial.print(controlData.Aux2);
+    //  Serial.print("    Aux3: ");     Serial.print(controlData.Aux3);
+    //  Serial.print("    Aux4: ");     Serial.print(controlData.Aux4);
+    //  Serial.print("    Aux5: ");     Serial.print(controlData.Aux5);
+    //  Serial.print("    Aux6: ");     Serial.print(controlData.Aux6);
+    //  Serial.print("    Swd1: ");     Serial.print(controlData.Swd1);
+    //  Serial.print("    Swd2: ");     Serial.print(controlData.Swd2);
+    //  Serial.println();
+    //#endif
+    controlData.Token = CURRENT_RX_CONFIG.Token;
+    radio.write(&controlData, sizeof(ControlData));
+  }
 }
 
 void Radio_bind() {
@@ -63,16 +70,16 @@ void Radio_bind() {
   radio.setAutoAck(false);
   radio.startListening();
   radio.stopListening();
-  
+
   initMenuNode(bindMenu, "BIND", 3);
   bindMenu->Index = -1;
-  initMenuNodeItem(bindMenu->Items, 0, 0, "Channel: ..."); 
+  initMenuNodeItem(bindMenu->Items, 0, 0, "Channel: ...");
   initMenuNodeItem(bindMenu->Items, 1, 0, "");
   initMenuNodeItem(bindMenu->Items, 2, 0, "");
   showMenu(bindMenu);
   uint8_t channel = findChannel();
   char strChannel[4];
-  initMenuNodeItem(bindMenu->Items, 0, 0, strcat("Channel: ", itoa(channel, strChannel, 10))); 
+  initMenuNodeItem(bindMenu->Items, 0, 0, strcat("Channel: ", itoa(channel, strChannel, 10)));
   showMenu(bindMenu);
   uint32_t token = generateToken();
   initMenuNodeItem(bindMenu->Items, 1, 0, "Token ready.");
@@ -89,7 +96,7 @@ uint8_t findChannel() {
       radio.startListening();
       delayMicroseconds(128);
       radio.stopListening();
-      if ( radio.testCarrier() ){
+      if ( radio.testCarrier() ) {
         loads[j]++;
       }
     }
@@ -114,7 +121,7 @@ uint8_t findChannel() {
 }
 
 uint32_t generateToken() {
-  return millis();
+  return micros();
 }
 
 void bindRx(uint8_t channel, uint32_t token) {
@@ -131,9 +138,9 @@ void bindRx(uint8_t channel, uint32_t token) {
   TxBindData txBindData;
   strcpy(txBindData.TxIdentifier, TX_IDENTIFIER);
   txBindData.Token = token;
-  while(!bound) {
+  while (!bound) {
     bool txSent = radio.write(&txBindData, sizeof(txBindData));
-    if(txSent && radio.isAckPayloadAvailable()) {
+    if (txSent && radio.isAckPayloadAvailable()) {
       RxBindData rxBindData;
       radio.read(&rxBindData, sizeof(rxBindData));
       if (rxBindData.RxIdentifier == TX_IDENTIFIER && rxBindData.Token == token) {
@@ -143,6 +150,7 @@ void bindRx(uint8_t channel, uint32_t token) {
         showMenu(bindMenu);
       }
     }
+    delayMicroseconds(20000); //Place some delay to avoid flodding the channel
   }
 }
 
