@@ -37,11 +37,15 @@ uint8_t aux6State = 0;
 
 Bounce bounces[BUTTON_COUNT];
 
-uint32_t lastLoopMillis = 0;
-uint16_t loopInterval = 10; //To loop 100 times per second this value should be 10ms;
+// Loop time control
+uint32_t currentTime;
 
-//uint32_t previousButtonCheckMillis = 0;
+static const uint16_t buttonCheckInterval = 10000;
+uint32_t previousButtonCheckTime = 0;
 //uint8_t buttonCheckInterval = 5; //5ms for debounce, bouncing pretty much dies out after 4ms.
+static const uint16_t getDataInterval = 20000;
+uint32_t previousGetDataTime = 0;
+
 
 ControlData controlData;
 
@@ -67,7 +71,7 @@ void loop() {
     txModeInit();
     PREVIOUS_TX_MODE = TX_MODE;
   }
-  txModeProcess(millis());
+  txModeProcess(micros());
 }
 
 void txModeInit() {
@@ -78,7 +82,7 @@ void txModeInit() {
 
   Display_showModeScreen(TX_MODE);
   delay(1000);
-  
+
   switch (TX_MODE) {
     case MODE_CONTROL:
       Control_init();
@@ -109,38 +113,38 @@ void txModeInit() {
   }
 }
 
-void txModeProcess(uint32_t currentMillis) {
+void txModeProcess(uint32_t currentTime) {
   //TODO: loop timing control
   switch (TX_MODE) {
-      case MODE_CONTROL:
-        Control_checkButtons();
-        Control_getData();
-        Radio_sendData(controlData);
-        break;
+    case MODE_CONTROL:
+      Control_checkButtons(currentTime);
+      Control_getData(currentTime);
+      Radio_sendData(controlData, currentTime);
+      break;
 #ifdef SIMULATOR
-      case MODE_SIMULATOR:
-        Control_checkButtons();
-        Control_getData();
-        CPPM_outputData(controlData);
-        break;
+    case MODE_SIMULATOR:
+      Control_checkButtons(currentTime);
+      Control_getData(currentTime);
+      CPPM_outputData(controlData);
+      break;
 #endif
 #ifdef BUDDY
-      case MODE_TRAINER:
-        Control_checkButtons();
-        //TODO: Activate button flip then getControlData();CPPM_outputData(controlData);
-        break;
-      case MODE_STUDENT:
-        Control_checkButtons();
-        //TODO: If receiving Trainer data, getTrainerData();sendRadioData(controlData);
-        break;
+    case MODE_TRAINER:
+      Control_checkButtons(currentTime);
+      //TODO: Activate button flip then getControlData();CPPM_outputData(controlData);
+      break;
+    case MODE_STUDENT:
+      Control_checkButtons(currentTime);
+      //TODO: If receiving Trainer data, getTrainerData();sendRadioData(controlData);
+      break;
 #endif
-      case MODE_MENU:
-        Menu_checkButtons();
-        break;
-      case MODE_BIND:
-        //TODO:
-        break;
-    }
+    case MODE_MENU:
+      Menu_checkButtons();
+      break;
+    case MODE_BIND:
+      //Bind workflow is self-handled
+      break;
+  }
 }
 
 void Control_init() {
@@ -167,7 +171,7 @@ void Control_initConfig() {
 //#else
 //  previousGroupDValue = PIND & B10111100;
 //#endif
-//  
+//
 //}
 void Control_initButtons() {
   Bounce fnBounce = Bounce();
@@ -229,154 +233,159 @@ void Control_resetData() {
   controlData.Swd2 = 1000;
 }
 
-void Control_checkButtons() {
-//  if (currentMillis - previousButtonCheckMillis >= buttonCheckInterval) {
-//    previousButtonCheckMillis = currentMillis;
-//#ifdef EXTEND_CHANNEL
-//    uint8_t groupDValue = PIND & B11111100;
-//    uint8_t groupBValue = PINB & B00000001;
-//#else
-//    uint8_t groupDValue = PIND & B10111100;
-//    if (previousGroupDValue != groupDValue) {
-//      
-//    }
-//#endif
-//  }
-  
-  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
-    bounces[i].update();
-    if (bounces[i].fell()) {
-      switch (i) {
-        case 0:
-          trimming = !trimming;
-          trimmingStickIndex = 0;
-          break;
-        case 1:
-          if (trimming) {
-            trimStick(false);
-          } else {
-            if (AUX_1_STATES > 1) {
-              aux1State++;
-              if (aux1State > AUX_1_STATES - 1) {
-                aux1State = 0;
+void Control_checkButtons(uint32_t currentTime) {
+  //  if (currentMillis - previousButtonCheckMillis >= buttonCheckInterval) {
+  //    previousButtonCheckMillis = currentMillis;
+  //#ifdef EXTEND_CHANNEL
+  //    uint8_t groupDValue = PIND & B11111100;
+  //    uint8_t groupBValue = PINB & B00000001;
+  //#else
+  //    uint8_t groupDValue = PIND & B10111100;
+  //    if (previousGroupDValue != groupDValue) {
+  //
+  //    }
+  //#endif
+  //  }
+  if (currentTime - previousButtonCheckTime >= buttonCheckInterval) {
+    previousButtonCheckTime = currentTime;
+    for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+      bounces[i].update();
+      if (bounces[i].fell()) {
+        switch (i) {
+          case 0:
+            trimming = !trimming;
+            trimmingStickIndex = 0;
+            break;
+          case 1:
+            if (trimming) {
+              trimStick(false);
+            } else {
+              if (AUX_1_STATES > 1) {
+                aux1State++;
+                if (aux1State > AUX_1_STATES - 1) {
+                  aux1State = 0;
+                }
               }
             }
-          }
-          break;
-        case 2:
-          if (trimming) {
-            trimStick(true);
-          } else {
-            if (AUX_2_STATES > 1) {
-              aux2State++;
-              if (aux2State > AUX_2_STATES - 1) {
-                aux2State = 0;
+            break;
+          case 2:
+            if (trimming) {
+              trimStick(true);
+            } else {
+              if (AUX_2_STATES > 1) {
+                aux2State++;
+                if (aux2State > AUX_2_STATES - 1) {
+                  aux2State = 0;
+                }
               }
             }
-          }
-          break;
-        case 3:
-          if (trimming) {
-            trimmingStickIndex++;
-            if (trimmingStickIndex > 3) {
-              trimmingStickIndex = 0;
-            }
-          } else {
-            if (AUX_3_STATES > 1) {
-              aux3State++;
-              if (aux3State > AUX_3_STATES - 1) {
-                aux3State = 0;
+            break;
+          case 3:
+            if (trimming) {
+              trimmingStickIndex++;
+              if (trimmingStickIndex > 3) {
+                trimmingStickIndex = 0;
+              }
+            } else {
+              if (AUX_3_STATES > 1) {
+                aux3State++;
+                if (aux3State > AUX_3_STATES - 1) {
+                  aux3State = 0;
+                }
               }
             }
-          }
-          break;
-        case 4:
-          if (AUX_4_STATES > 1 && !trimming) {
-            aux4State++;
-            if (aux4State > AUX_4_STATES - 1) {
-              aux4State = 0;
+            break;
+          case 4:
+            if (AUX_4_STATES > 1 && !trimming) {
+              aux4State++;
+              if (aux4State > AUX_4_STATES - 1) {
+                aux4State = 0;
+              }
             }
-          }
-          break;
+            break;
 #ifdef EXTEND_CHANNEL
-        case 5:
-          if (AUX_5_STATES > 1 && !trimming) {
-            aux5State++;
-            if (aux5State > AUX_5_STATES - 1) {
-              aux5State = 0;
+          case 5:
+            if (AUX_5_STATES > 1 && !trimming) {
+              aux5State++;
+              if (aux5State > AUX_5_STATES - 1) {
+                aux5State = 0;
+              }
             }
-          }
-          break;
-        case 6:
-          if (AUX_6_STATES > 1 && !trimming) {
-            aux6State++;
-            if (aux6State > AUX_6_STATES - 1) {
-              aux6State = 0;
+            break;
+          case 6:
+            if (AUX_6_STATES > 1 && !trimming) {
+              aux6State++;
+              if (aux6State > AUX_6_STATES - 1) {
+                aux6State = 0;
+              }
             }
-          }
-          break;
+            break;
 #endif
-      }
+        }
 #ifdef DEBUG
-      Serial.print(F("Button pressed, index: "));
-      Serial.print(i);
-      Serial.print(F("  Aux1:"));
-      Serial.print(aux1State);
-      Serial.print(F("  Aux2:"));
-      Serial.print(aux2State);
-      Serial.print(F("  Aux3:"));
-      Serial.print(aux3State);
-      Serial.print(F("  Aux4:"));
-      Serial.print(aux4State);
+        Serial.print(F("Button pressed, index: "));
+        Serial.print(i);
+        Serial.print(F("  Aux1:"));
+        Serial.print(aux1State);
+        Serial.print(F("  Aux2:"));
+        Serial.print(aux2State);
+        Serial.print(F("  Aux3:"));
+        Serial.print(aux3State);
+        Serial.print(F("  Aux4:"));
+        Serial.print(aux4State);
 #ifdef EXTEND_CHANNEL
-      Serial.print(F("  Aux5:"));
-      Serial.print(aux5State);
-      Serial.print(F("  Aux6:"));
-      Serial.print(aux6State);
+        Serial.print(F("  Aux5:"));
+        Serial.print(aux5State);
+        Serial.print(F("  Aux6:"));
+        Serial.print(aux6State);
 #endif
-      if(trimming) {
-        Serial.print(F("    Trimming Stick Index:"));
-        Serial.print(trimmingStickIndex);
+        if (trimming) {
+          Serial.print(F("    Trimming Stick Index:"));
+          Serial.print(trimmingStickIndex);
+        }
+        Serial.println();
+#endif
       }
-      Serial.println();
-#endif
     }
   }
 }
 
-void Control_getData() { 
-  //TODO: Reverse channel setting should be considered
-  //TODO: Use port manipulation for better performance
-  controlData.Throttle  = mapJoystickValues(analogRead(THROTTLE_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.ThrottleTrim * RX_TRIM_STEP_WIDTH;
-  controlData.Yaw       = mapJoystickValues(analogRead(YAW_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.YawTrim * RX_TRIM_STEP_WIDTH;
-  controlData.Pitch     = mapJoystickValues(analogRead(PITCH_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.PitchTrim * RX_TRIM_STEP_WIDTH;
-  controlData.Roll      = mapJoystickValues(analogRead(ROLL_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.RollTrim * RX_TRIM_STEP_WIDTH;
-  if(AUX_1_STATES == 0) controlData.Aux1 = mapJoystickValues(analogRead(AUX1_PIN), 0, 511, 1023, false);
-  else if(AUX_1_STATES == 1) controlData.Aux1 = map(digitalRead(AUX1_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux1 = map(aux1State, 0, AUX_1_STATES - 1, 1000, 2000);
-  if(AUX_2_STATES == 0) controlData.Aux2 = mapJoystickValues(analogRead(AUX2_PIN), 0, 511, 1023, false);
-  else if(AUX_2_STATES == 1) controlData.Aux2 = map(digitalRead(AUX2_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux2 = map(aux2State, 0, AUX_2_STATES - 1, 1000, 2000);
-  if(AUX_3_STATES == 0) controlData.Aux3 = mapJoystickValues(analogRead(AUX3_PIN), 0, 511, 1023, false);
-  else if(AUX_3_STATES == 1) controlData.Aux3 = map(digitalRead(AUX3_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux3 = map(aux3State, 0, AUX_3_STATES - 1, 1000, 2000);
-  if(AUX_4_STATES == 0) controlData.Aux4 = mapJoystickValues(analogRead(AUX4_PIN), 0, 511, 1023, false);
-  else if(AUX_4_STATES == 1) controlData.Aux4 = map(digitalRead(AUX4_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux4 = map(aux4State, 0, AUX_4_STATES - 1, 1000, 2000);
+void Control_getData(uint32_t currentTime) {
+  if (currentTime - previousGetDataTime >= getDataInterval) {
+    previousGetDataTime = currentTime;
+    //TODO: Reverse channel setting should be considered
+    //TODO: Use port manipulation for better performance
+    controlData.Throttle  = mapJoystickValues(analogRead(THROTTLE_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.ThrottleTrim * RX_TRIM_STEP_WIDTH;
+    controlData.Yaw       = mapJoystickValues(analogRead(YAW_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.YawTrim * RX_TRIM_STEP_WIDTH;
+    controlData.Pitch     = mapJoystickValues(analogRead(PITCH_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.PitchTrim * RX_TRIM_STEP_WIDTH;
+    controlData.Roll      = mapJoystickValues(analogRead(ROLL_PIN), 0, 511, 1023, false) + CURRENT_RX_CONFIG.RollTrim * RX_TRIM_STEP_WIDTH;
+    if (AUX_1_STATES == 0) controlData.Aux1 = mapJoystickValues(analogRead(AUX1_PIN), 0, 511, 1023, false);
+    else if (AUX_1_STATES == 1) controlData.Aux1 = map(digitalRead(AUX1_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux1 = map(aux1State, 0, AUX_1_STATES - 1, 1000, 2000);
+    if (AUX_2_STATES == 0) controlData.Aux2 = mapJoystickValues(analogRead(AUX2_PIN), 0, 511, 1023, false);
+    else if (AUX_2_STATES == 1) controlData.Aux2 = map(digitalRead(AUX2_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux2 = map(aux2State, 0, AUX_2_STATES - 1, 1000, 2000);
+    if (AUX_3_STATES == 0) controlData.Aux3 = mapJoystickValues(analogRead(AUX3_PIN), 0, 511, 1023, false);
+    else if (AUX_3_STATES == 1) controlData.Aux3 = map(digitalRead(AUX3_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux3 = map(aux3State, 0, AUX_3_STATES - 1, 1000, 2000);
+    if (AUX_4_STATES == 0) controlData.Aux4 = mapJoystickValues(analogRead(AUX4_PIN), 0, 511, 1023, false);
+    else if (AUX_4_STATES == 1) controlData.Aux4 = map(digitalRead(AUX4_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux4 = map(aux4State, 0, AUX_4_STATES - 1, 1000, 2000);
 #ifdef EXTEND_CHANNEL
-  if(AUX_5_STATES == 0) controlData.Aux5 = mapJoystickValues(analogRead(AUX5_PIN), 0, 511, 1023, false);
-  else if(AUX_5_STATES == 1) controlData.Aux5 = map(digitalRead(AUX5_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux5 = map(aux5State, 0, AUX_5_STATES - 1, 1000, 2000);
-  if(AUX_6_STATES == 0) controlData.Aux6 = mapJoystickValues(analogRead(AUX6_PIN), 0, 511, 1023, false);
-  else if(AUX_6_STATES == 1) controlData.Aux6 = map(digitalRead(AUX6_PIN), 0, 1, 1000, 2000);
-  else controlData.Aux6 = map(aux6State, 0, AUX_6_STATES - 1, 1000, 2000);
+    if (AUX_5_STATES == 0) controlData.Aux5 = mapJoystickValues(analogRead(AUX5_PIN), 0, 511, 1023, false);
+    else if (AUX_5_STATES == 1) controlData.Aux5 = map(digitalRead(AUX5_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux5 = map(aux5State, 0, AUX_5_STATES - 1, 1000, 2000);
+    if (AUX_6_STATES == 0) controlData.Aux6 = mapJoystickValues(analogRead(AUX6_PIN), 0, 511, 1023, false);
+    else if (AUX_6_STATES == 1) controlData.Aux6 = map(digitalRead(AUX6_PIN), 0, 1, 1000, 2000);
+    else controlData.Aux6 = map(aux6State, 0, AUX_6_STATES - 1, 1000, 2000);
 #endif
 #ifdef SWD_1
-  controlData.Swd1      = mapJoystickValues(analogRead(SWD1_PIN), 0, 511, 1023, false);
+    controlData.Swd1      = mapJoystickValues(analogRead(SWD1_PIN), 0, 511, 1023, false);
 #endif
 #ifdef SWD_2
-  controlData.Swd2      = mapJoystickValues(analogRead(SWD2_PIN), 0, 511, 1023, false);
+    controlData.Swd2      = mapJoystickValues(analogRead(SWD2_PIN), 0, 511, 1023, false);
 #endif
+  }
 }
 
 uint16_t mapJoystickValues(uint16_t val, uint16_t lower, uint16_t middle, uint16_t upper, bool reverse) {
