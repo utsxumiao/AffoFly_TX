@@ -32,6 +32,9 @@ RxConfig EEPROM_readRxConfig(uint8_t rxId) {
 }
 
 void EEPROM_writeRxConfig(RxConfig rxConfig) {
+#ifdef DEBUG
+  Serial.println(rxConfig.Name);
+#endif
   uint16_t rxConfigEepromAddress = RX_CONFIG_ALLOCATED_BYTES * (rxConfig.Id - 1) + RX_CONFIG_EEPROM_START_ADDRESS;
   EEPROM.put(rxConfigEepromAddress, rxConfig);
 }

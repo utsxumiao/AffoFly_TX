@@ -398,7 +398,7 @@ void handleMenu(uint8_t menuId, char* title) {
         TX_MODE = MODE_BIND;
         break;
       case MENU_ID_RX_RENAME_OK:
-        //strcpy(rxRenameTemplate->ParentMenu, title);
+        strcpy(rxRenameTemplate->ParentMenu, title);
         strcpy(selectedRxConfig.Name, title);
         EEPROM_writeRxConfig(selectedRxConfig);
         break;
