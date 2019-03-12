@@ -25,7 +25,6 @@ const char menu_setting_3[] = "Restart";
 
 // RX meu items
 const char menu_rx_title[] = "RX SETTING";
-char menu_rx[][LINE_ITEM_MAX_LEN + 1] = {"RX1 Name", "RX2 Name", "RX3 Name", "RX4 Name", "RX5 Name", "RX6 Name", "RX7 Name", "RX8 Name", "RX9 Name", "RX10 Name"};
 const char allowed_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
 
 // RX setting menu items
@@ -134,16 +133,16 @@ void setupMenu()  {
   // RX Selection menu ----------------
   rxMenu = (MenuNode*)malloc(sizeof(MenuNode));
   initMenuNode(rxMenu, menu_rx_title, 10);
-  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, menu_rx[0]);
-  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, menu_rx[1]);
-  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, menu_rx[2]);
-  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, menu_rx[3]);
-  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, menu_rx[4]);
-  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, menu_rx[5]);
-  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, menu_rx[6]);
-  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, menu_rx[7]);
-  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, menu_rx[8]);
-  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, menu_rx[9]);
+  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getAllocatedRxName(0));
+  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getAllocatedRxName(1));
+  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getAllocatedRxName(2));
+  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, getAllocatedRxName(3));
+  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, getAllocatedRxName(4));
+  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, getAllocatedRxName(5));
+  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, getAllocatedRxName(6));
+  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, getAllocatedRxName(7));
+  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getAllocatedRxName(8));
+  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getAllocatedRxName(9));
   rxMenu->Prev = settingMenu;  // Link back to the previous menu node
   settingMenu->Items[1].Item = rxMenu;  // Link with the menu item in the previous menu node
 
@@ -169,7 +168,14 @@ void setupMenu()  {
 
   // initialize pagination
   setPagination(0);
+}
 
+char* getAllocatedRxName(uint8_t index)  {
+  RxConfig tempRxConfig = EEPROM_readRxConfig(index + 1);
+  char* rxName = (char*)malloc(LINE_ITEM_MAX_LEN + 1);
+  strncpy(rxName, tempRxConfig.Name, LINE_ITEM_MAX_LEN);
+  rxName[LINE_ITEM_MAX_LEN] = '\0';
+  return rxName;
 }
 
 void setPagination(uint8_t scrollIndex) {
@@ -399,7 +405,7 @@ void handleMenu(uint8_t menuId, char* title) {
         break;
       case MENU_ID_RX_RENAME_OK:
         strcpy(rxRenameTemplate->ParentMenu, title);
-        strcpy(selectedRxConfig.Name, title);
+        strncpy(selectedRxConfig.Name, title, LINE_ITEM_MAX_LEN);
         EEPROM_writeRxConfig(selectedRxConfig);
         break;
       case MENU_ID_SETTING_SOFT_RST:

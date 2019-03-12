@@ -72,17 +72,20 @@
 #define MODE_BIND           4
 #define MODE_MENU           5
 
+#define EEPROM_VERSION_ID               "AffoFly_f19a81b3"
+#define EEPROM_VERSION_ID_LENGTH        16
 // EEPROM address 0-99 for general TX settings
 // Each RxConfig takes 30 bytes (currently uses 20 bytes)
 // We allocate 10 RxConfig
 // EEPROM address 100-399 for 10 RxConfig
 #define EEPROM_SETTING_LENGTH           400
+#define EEPROM_START_ADDRESS            0
 
-#define RADIO_PA_LEVEL_EEPROM_ADDRESS   4
+#define RADIO_PA_LEVEL_EEPROM_ADDRESS   20
 #define RADIO_PA_LEVEL_LOWER_BOUNDARY   0
 #define RADIO_PA_LEVEL_UPPER_BOUNDARY   3
 
-#define CURRENT_RX_ID_EEPROM_ADDRESS    5
+#define CURRENT_RX_ID_EEPROM_ADDRESS    21
 
 #define RX_CONFIG_EEPROM_START_ADDRESS  100
 #define RX_CONFIG_ALLOCATED_BYTES       30
@@ -125,7 +128,7 @@
   #define SCREEN_LINES              8
   #define SCREEN_MENU_LINES         8
   #define SCREEN_MENU_HEADER_ROWS   0
-  #define LINE_ITEM_MAX_LEN         12  
+  #define LINE_ITEM_MAX_LEN         10
 #endif
 
 #endif /* DEF_H_ */

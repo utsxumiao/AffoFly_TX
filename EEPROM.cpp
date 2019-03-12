@@ -6,10 +6,22 @@
 #include "EEPROM.h"
 
 void EEPROM_ensureValid() {
-  uint8_t currentRxId = EEPROM_readCurrentRxId();
-  if (currentRxId == 0) {
+  if (!EEPROM_checkVersionId()) {
     EEPROM_loadDefaults();
   }
+}
+
+bool EEPROM_checkVersionId()  {
+  char versionId[EEPROM_VERSION_ID_LENGTH + 1];
+  EEPROM.get(EEPROM_START_ADDRESS, versionId);
+  versionId[EEPROM_VERSION_ID_LENGTH] = '\0'; // make a valid char array
+#ifdef DEBUG
+  Serial.print("EEPROM Version ID: ");
+  Serial.println(versionId);
+  Serial.print("EEPROM Version ID should be: ");
+  Serial.println(EEPROM_VERSION_ID);
+#endif
+  return !strcmp(versionId, EEPROM_VERSION_ID);
 }
 
 uint8_t EEPROM_readRadioPaLevel() {
@@ -46,6 +58,7 @@ void EEPROM_loadDefaults() {
   for (int i = 0 ; i < EEPROM_SETTING_LENGTH ; i++) {
     EEPROM.update(i, 0);
   }
+  EEPROM.put(EEPROM_START_ADDRESS, EEPROM_VERSION_ID);
   EEPROM.put(RADIO_PA_LEVEL_EEPROM_ADDRESS, RADIO_PA_LEVEL_UPPER_BOUNDARY);
   EEPROM.put(CURRENT_RX_ID_EEPROM_ADDRESS, RADIO_RX_ID_LOWER_BOUNDARY);
   for (uint8_t i = RADIO_RX_ID_LOWER_BOUNDARY; i <= RADIO_RX_ID_UPPER_BOUNDARY; i++) {
