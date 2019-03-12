@@ -26,6 +26,7 @@ const char menu_setting_3[] = "Restart";
 // RX meu items
 const char menu_rx_title[] = "RX SETTING";
 const char allowed_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
+char menu_rx[RX_TOTAL_COUNT][RX_NAME_MAX_LENGTH + 1];
 
 // RX setting menu items
 const char menu_rx_setting_0[] = "Select";
@@ -132,17 +133,17 @@ void setupMenu()  {
 
   // RX Selection menu ----------------
   rxMenu = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(rxMenu, menu_rx_title, 10);
-  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getAllocatedRxName(0));
-  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getAllocatedRxName(1));
-  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getAllocatedRxName(2));
-  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, getAllocatedRxName(3));
-  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, getAllocatedRxName(4));
-  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, getAllocatedRxName(5));
-  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, getAllocatedRxName(6));
-  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, getAllocatedRxName(7));
-  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getAllocatedRxName(8));
-  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getAllocatedRxName(9));
+  initMenuNode(rxMenu, menu_rx_title, RX_TOTAL_COUNT);
+  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getRxName(0));
+  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getRxName(1));
+  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getRxName(2));
+  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, getRxName(3));
+  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, getRxName(4));
+  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, getRxName(5));
+  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, getRxName(6));
+  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, getRxName(7));
+  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getRxName(8));
+  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getRxName(9));
   rxMenu->Prev = settingMenu;  // Link back to the previous menu node
   settingMenu->Items[1].Item = rxMenu;  // Link with the menu item in the previous menu node
 
@@ -165,17 +166,17 @@ void setupMenu()  {
   itemEdit.Value = (char*)malloc(LINE_ITEM_MAX_LEN + 1);
   memset(itemEdit.Value, 0, LINE_ITEM_MAX_LEN + 1);
   itemEdit.Index = ITEM_EDIT_NOT_SELECTED;
+  itemEdit.MaxLength = LINE_ITEM_MAX_LEN;
 
   // initialize pagination
   setPagination(0);
 }
 
-char* getAllocatedRxName(uint8_t index)  {
+char* getRxName(uint8_t index)  {
   RxConfig tempRxConfig = EEPROM_readRxConfig(index + 1);
-  char* rxName = (char*)malloc(LINE_ITEM_MAX_LEN + 1);
-  strncpy(rxName, tempRxConfig.Name, LINE_ITEM_MAX_LEN);
-  rxName[LINE_ITEM_MAX_LEN] = '\0';
-  return rxName;
+  strncpy(menu_rx[index], tempRxConfig.Name, RX_NAME_MAX_LENGTH);
+  menu_rx[index][RX_NAME_MAX_LENGTH] = '\0';
+  return menu_rx[index];
 }
 
 void setPagination(uint8_t scrollIndex) {
@@ -340,7 +341,7 @@ void selectMenu() {
     }
     else  {
       itemEdit.Index++;
-      if (itemEdit.Index >= LINE_ITEM_MAX_LEN)  {
+      if (itemEdit.Index >= itemEdit.MaxLength)  {
         itemEdit.Index = 0;
         // save the data
         if (currentMenu->ExecFunc)  {
@@ -379,6 +380,7 @@ void handleMenu(uint8_t menuId, char* title) {
       memset(itemEdit.Value, 0, LINE_ITEM_MAX_LEN + 1); // clear the string first
       strcpy(itemEdit.Value, rxRenameTemplate->ParentMenu);
       itemEdit.Index = 0;
+      itemEdit.MaxLength = RX_NAME_MAX_LENGTH;
     }
     showMenuItemEditMode(currentMenu);
   }
@@ -405,7 +407,7 @@ void handleMenu(uint8_t menuId, char* title) {
         break;
       case MENU_ID_RX_RENAME_OK:
         strcpy(rxRenameTemplate->ParentMenu, title);
-        strncpy(selectedRxConfig.Name, title, LINE_ITEM_MAX_LEN);
+        strncpy(selectedRxConfig.Name, title, RX_NAME_MAX_LENGTH);
         EEPROM_writeRxConfig(selectedRxConfig);
         break;
       case MENU_ID_SETTING_SOFT_RST:

@@ -60,6 +60,7 @@ typedef struct menu_node {
 typedef struct menu_item_edit {
   char* Value;
   uint8_t Index;
+  uint8_t MaxLength;
 } MenuItemEdit;
 
 typedef struct menu_pagination  {

@@ -95,6 +95,8 @@
 #define RADIO_CHANNEL_UPPER_BOUNDARY    125
 #define RX_TRIM_STEP_RANGE              15
 #define RX_TRIM_STEP_WIDTH              2
+#define RX_TOTAL_COUNT                  10
+#define RX_NAME_MAX_LENGTH              10
 
 // CPPM Configurations, 
 #define CLOCK_MULTIPLIER  1       // 1 for 8MHZ, 2 for 16MHZ
@@ -114,21 +116,21 @@
   #define SCREEN_LINES              8
   #define SCREEN_MENU_LINES         8
   #define SCREEN_MENU_HEADER_ROWS   0
-  #define LINE_ITEM_MAX_LEN         12  
+  #define LINE_ITEM_MAX_LEN         12
 
 #elif defined(SCREEN_LCD_SSD1306_128X64_HW_I2C)
   #define SCREEN_WIDTH              30
   #define SCREEN_LINES              8
   #define SCREEN_MENU_LINES         8
   #define SCREEN_MENU_HEADER_ROWS   0
-  #define LINE_ITEM_MAX_LEN         12  
+  #define LINE_ITEM_MAX_LEN         12
 
 #elif defined(SCREEN_SERIAL_MONITOR)
   #define SCREEN_WIDTH              30
   #define SCREEN_LINES              8
   #define SCREEN_MENU_LINES         8
   #define SCREEN_MENU_HEADER_ROWS   0
-  #define LINE_ITEM_MAX_LEN         10
+  #define LINE_ITEM_MAX_LEN         12
 #endif
 
 #endif /* DEF_H_ */

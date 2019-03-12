@@ -48,7 +48,7 @@ void initMenuNodeItemWithSelectable(MenuNodeItem* items, uint8_t index, uint8_t 
 void navigateMenu(MenuNode* node, int8_t upOrDown);
 uint8_t getNextAllowedChar(uint8_t ch, int8_t upOrDown);
 MenuNodeItem* getCurrentMenuNodeItem(MenuNode* node);
-char* getAllocatedRxName(uint8_t index);
+char* getRxName(uint8_t index);
 void selectMenu();
 void handleMenu(uint8_t menuId, char* title);
 void goBackMenu();
