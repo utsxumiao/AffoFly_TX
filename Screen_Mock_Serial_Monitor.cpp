@@ -8,7 +8,7 @@
 
 #ifdef SCREEN_SERIAL_MONITOR
 
-void Display_showWelcomeScreen(char* projectName, char* projectVersion) {
+void Screen_showWelcomeScreen(char* projectName, char* projectVersion) {
   Serial.println(F("================================"));
   Serial.println(F("=                              ="));
   Serial.println(F("=                              ="));
@@ -21,7 +21,7 @@ void Display_showWelcomeScreen(char* projectName, char* projectVersion) {
   Serial.println(F("================================"));
 }
 
-void Display_showModeScreen(uint8_t txMode) {
+void Screen_showModeScreen(uint8_t txMode) {
   for (uint8_t i = 0; i < 10; i++) {
     Serial.println();
   }
@@ -58,7 +58,7 @@ void Display_showModeScreen(uint8_t txMode) {
   Serial.println(F("================================"));
 }
 
-void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
+void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
   for (uint8_t i = 0; i < 10; i++) {
     Serial.println();
   }
@@ -100,7 +100,7 @@ void Display_refreshMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_
   Serial.println(F("================================"));
 }
 
-void Display_showRxRename(uint8_t *lineCount) {
+void Screen_showMenuRxRename(uint8_t *lineCount) {
   uint8_t i = 0;
 
   Serial.print("= ");

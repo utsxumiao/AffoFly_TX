@@ -448,7 +448,7 @@ void showMenu(MenuNode* node, void (*displayFunc)(uint8_t*))  {
     } else {
       title = node->Title;
     }
-    Display_refreshMenu(title, node->Items, node->ItemCount, node->Index, displayFunc);
+    Screen_showMenu(title, node->Items, node->ItemCount, node->Index, displayFunc);
   } else {
 #ifdef DEBUG
     Serial.println(F("Menu not set!"));
@@ -459,7 +459,7 @@ void showMenu(MenuNode* node, void (*displayFunc)(uint8_t*))  {
 void showMenuItemEditMode(MenuNode* node) {
     switch (node->ParentId) {
       case MENU_ID_RX_SETTING_RENAME:
-        showMenu(node, Display_showRxRename);  // print menu
+        showMenu(node, Screen_showMenuRxRename);  // print menu
         break;
     }
 }

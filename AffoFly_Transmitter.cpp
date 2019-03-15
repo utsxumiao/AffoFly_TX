@@ -66,7 +66,7 @@ void setup() {
     TX_MODE = MODE_MENU;
   }
 #ifdef SHOW_WELCOME_SCREEN
-  Display_showWelcomeScreen(PROJECT_NAME, PROJECT_VERSION);
+  Screen_showWelcomeScreen(PROJECT_NAME, PROJECT_VERSION);
   delay(2000);
 #endif
 }
@@ -85,7 +85,7 @@ void txModeInit() {
   Serial.println(TX_MODE);
 #endif
 
-  Display_showModeScreen(TX_MODE);
+  Screen_showModeScreen(TX_MODE);
   delay(1000);
 
   switch (TX_MODE) {
