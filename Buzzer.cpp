@@ -51,18 +51,10 @@ void Buzzer_beep(uint32_t currentTime) {
     if (currentTime >= beepingTime) {
       if (buzzerBeepPattern[buzzerBeepPatternIndex] == 0) {
         digitalWrite(BUZZER_PIN, LOW);
-        Serial.print(currentTime); Serial.print("    ");
-        Serial.print("repeats: "); Serial.print(buzzerBeepRepeats); Serial.print("    ");
-        Serial.print("index: ");  Serial.print(buzzerBeepPatternIndex); Serial.print("    ");
-        Serial.print("buzzer state: "); Serial.println(digitalRead(BUZZER_PIN));
         buzzerBeepPatternIndex = 0;
         buzzerBeepRepeats--;
       } else {
         digitalWrite(BUZZER_PIN, buzzerBeepPatternIndex % 2 == 0 ? HIGH : LOW);
-        Serial.print(currentTime); Serial.print("    ");
-        Serial.print("repeats: "); Serial.print(buzzerBeepRepeats); Serial.print("    ");
-        Serial.print("index: ");  Serial.print(buzzerBeepPatternIndex); Serial.print("    ");
-        Serial.print("buzzer state: "); Serial.println(digitalRead(BUZZER_PIN));
         beepingTime += buzzerBeepPattern[buzzerBeepPatternIndex];
         buzzerBeepPatternIndex++;
         if (buzzerBeepPatternIndex > 5) {
