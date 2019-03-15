@@ -370,7 +370,7 @@ void handleMenu(uint8_t menuId, char* title) {
     char strChannel[4];
     initMenuNodeItem(rxSettingTemplate->Items, 3, 0, strcat("Channel: ", itoa(selectedRxConfig.RadioChannel, strChannel, 10)));
     currentMenu = rxSettingTemplate;
-    currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
+    currentMenu->Index = 0;  // resetting user's selection in the previous visit to the menu
     currentMenu->ScrollIndex = 0;
     showMenu(currentMenu);  // print menu
   }
@@ -378,7 +378,7 @@ void handleMenu(uint8_t menuId, char* title) {
     rxRenameTemplate->ParentId = MENU_ID_RX_SETTING_RENAME; // rxRenameTemplate->ParentId;
     rxRenameTemplate->ParentMenu = rxSettingTemplate->ParentMenu;
     currentMenu = rxRenameTemplate;
-    currentMenu->Index = 0;  // resetting use's selection in the previous visit to the menu
+    currentMenu->Index = 0;  // resetting user's selection in the previous visit to the menu
 
     if (itemEdit.Index == ITEM_EDIT_NOT_SELECTED) {
       memset(itemEdit.Value, 0, LINE_ITEM_MAX_LEN + 1); // clear the string first

@@ -31,7 +31,6 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
 }
 
 void setBuzzerValues(uint32_t firstBeepDuration, uint32_t firstPauseDuration, uint32_t secondBeepDuration, uint32_t secondPauseDuration, uint32_t thirdBeepDuration, uint32_t thirdPauseDuration, uint8_t repeats) {
-  Serial.println("setting pattern...");
   buzzerBeepPattern[0] = firstBeepDuration;
   buzzerBeepPattern[1] = firstPauseDuration;
   buzzerBeepPattern[2] = secondBeepDuration;
