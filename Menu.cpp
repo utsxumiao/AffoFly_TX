@@ -10,29 +10,29 @@
 #include "Screen.h"
 
 // Top menu items
-const char menu_top_title[] = "MODE";   // Menu title
-const char menu_top_0[] = "CONTROL";
-const char menu_top_1[] = "SIMULATOR";
-const char menu_top_2[] = "TRAINER";
-const char menu_top_3[] = "STUDENT";
-const char menu_top_4[] = "SETTING";
+const char menu_top_title[] PROGMEM = "MODE";   // Menu title
+const char menu_top_0[] PROGMEM = "CONTROL";
+const char menu_top_1[] PROGMEM = "SIMULATOR";
+const char menu_top_2[] PROGMEM = "TRAINER";
+const char menu_top_3[] PROGMEM = "STUDENT";
+const char menu_top_4[] PROGMEM = "SETTING";
 
 // Setting menu items
-const char menu_setting_title[] = "SETTING";
-const char menu_setting_0[] = "TX ID";
-const char menu_setting_1[] = "RX Setting";
-const char menu_setting_2[] = "Data Reset";
-const char menu_setting_3[] = "Restart";
+const char menu_setting_title[] PROGMEM = "SETTING";
+const char menu_setting_0[] PROGMEM = "TX ID";
+const char menu_setting_1[] PROGMEM = "RX Setting";
+const char menu_setting_2[] PROGMEM = "Data Reset";
+const char menu_setting_3[] PROGMEM = "Restart";
 
 // RX meu items
-const char menu_rx_title[] = "RX SETTING";
-const char allowed_chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
+const char menu_rx_title[] PROGMEM = "RX SETTING";
+const char allowed_chars[] PROGMEM = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
 char menu_rx[RX_TOTAL_COUNT][RX_NAME_MAX_LENGTH + 1];
 
 // RX setting menu items
-const char menu_rx_setting_0[] = "Select";
-const char menu_rx_setting_1[] = "Rename";
-const char menu_rx_setting_2[] = "Bind";
+const char menu_rx_setting_0[] PROGMEM = "Select";
+const char menu_rx_setting_1[] PROGMEM = "Rename";
+const char menu_rx_setting_2[] PROGMEM = "Bind";
 
 MenuNode* topMenu;
 MenuNode* currentMenu;
@@ -94,7 +94,7 @@ void Menu_checkButtons() {
   }
 }
 
-void setupMenu()  {
+void setupMenu() {
   MenuNode* settingMenu;
   MenuNode* rxMenu;
 
@@ -107,37 +107,94 @@ void setupMenu()  {
 #ifdef BUDDY
   topMenuNodeItemCount += 2;
 #endif
-  initMenuNode(topMenu, menu_top_title, topMenuNodeItemCount);
+  uint8_t itemLength = strlen(menu_top_title);
+  char menuTopTitle[itemLength + 1];
+  memset(menuTopTitle, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_title, menuTopTitle, itemLength);
+  initMenuNode(topMenu, menuTopTitle, topMenuNodeItemCount);
+
   uint8_t topMenuNodeItemIndex = 0;
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_CONTROL, menu_top_0);
+  itemLength = strlen(menu_top_0);
+  char menuTop0[itemLength + 1];
+  memset(menuTop0, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_0, menuTop0, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_CONTROL, menuTop0);
+
 #ifdef SIMULATOR
   topMenuNodeItemIndex++;
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SIMULATOR, menu_top_1);
+  itemLength = strlen(menu_top_1);
+  char menuTop1[itemLength + 1];
+  memset(menuTop1, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_1, menuTop1, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SIMULATOR, menuTop1);
 #endif
 #ifdef BUDDY
   topMenuNodeItemIndex++;
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_TRAINER, menu_top_2);
+  itemLength = strlen(menu_top_2);
+  char menuTop2[itemLength + 1];
+  memset(menuTop2, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_2, menuTop2, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_TRAINER, menuTop2);
+
   topMenuNodeItemIndex++;
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_STUDENT, menu_top_3);
+  itemLength = strlen(menu_top_3);
+  char menuTop3[itemLength + 1];
+  memset(menuTop3, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_3, menuTop3, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_STUDENT, menuTop3);
 #endif
   topMenuNodeItemIndex++;
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SETTING, menu_top_4);
+  itemLength = strlen(menu_top_4);
+  char menuTop4[itemLength + 1];
+  memset(menuTop4, 0, itemLength + 1);
+  getValueFromProgmem(menu_top_4, menuTop4, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SETTING, menuTop4);
 
   currentMenu = topMenu;  // Top menu is seleted by default
 
   // Setting menu ---------------------
   settingMenu = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(settingMenu, menu_setting_title, 4);
-  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, menu_setting_0);
-  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, menu_setting_1);
-  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, menu_setting_2);
-  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, menu_setting_3);
+  itemLength = strlen(menu_setting_title);
+  char menuSettingTitle[itemLength + 1];
+  memset(menuSettingTitle, 0, itemLength + 1);
+  getValueFromProgmem(menu_setting_title, menuSettingTitle, itemLength);
+  initMenuNode(settingMenu, menuSettingTitle, 4);
+
+  itemLength = strlen(menu_setting_0);
+  char menuSetting0[itemLength + 1];
+  memset(menuSetting0, 0, itemLength + 1);
+  getValueFromProgmem(menu_setting_0, menuSetting0, itemLength);
+  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, menuSetting0);
+
+  itemLength = strlen(menu_setting_1);
+  char menuSetting1[itemLength + 1];
+  memset(menuSetting1, 0, itemLength + 1);
+  getValueFromProgmem(menu_setting_1, menuSetting1, itemLength);
+  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, menuSetting1);
+
+  itemLength = strlen(menu_setting_2);
+  char menuSetting2[itemLength + 1];
+  memset(menuSetting2, 0, itemLength + 1);
+  getValueFromProgmem(menu_setting_2, menuSetting2, itemLength);
+  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, menuSetting2);
+
+  itemLength = strlen(menu_setting_3);
+  char menuSetting3[itemLength + 1];
+  memset(menuSetting3, 0, itemLength + 1);
+  getValueFromProgmem(menu_setting_3, menuSetting3, itemLength);
+  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, menuSetting3);
+
   settingMenu->Prev = topMenu;  // Link back to the previous menu node
   topMenu->Items[4].Item = settingMenu;  // Link with the menu item in the previous menu node
 
   // RX Selection menu ----------------
   rxMenu = (MenuNode*)malloc(sizeof(MenuNode));
-  initMenuNode(rxMenu, menu_rx_title, RX_TOTAL_COUNT);
+  itemLength = strlen(menu_rx_title);
+  char menuRxTitle[itemLength + 1];
+  memset(menuRxTitle, 0, itemLength + 1);
+  getValueFromProgmem(menu_rx_title, menuRxTitle, itemLength);
+  initMenuNode(rxMenu, menuRxTitle, RX_TOTAL_COUNT);
+
   initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getRxName(0));
   initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getRxName(1));
   initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getRxName(2));
@@ -154,9 +211,25 @@ void setupMenu()  {
   // RX Setting template --------------------
   rxSettingTemplate = (MenuNode*)malloc(sizeof(MenuNode));
   initMenuNode(rxSettingTemplate, "", 4);
-  initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, menu_rx_setting_0);
-  initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, menu_rx_setting_1);
-  initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, menu_rx_setting_2);
+
+  itemLength = strlen(menu_rx_setting_0);
+  char menuRxSetting0[itemLength + 1];
+  memset(menuRxSetting0, 0, itemLength + 1);
+  getValueFromProgmem(menu_rx_setting_0, menuRxSetting0, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, menuRxSetting0);
+
+  itemLength = strlen(menu_rx_setting_1);
+  char menuRxSetting1[itemLength + 1];
+  memset(menuRxSetting1, 0, itemLength + 1);
+  getValueFromProgmem(menu_rx_setting_1, menuRxSetting1, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, menuRxSetting1);
+
+  itemLength = strlen(menu_rx_setting_2);
+  char menuRxSetting2[itemLength + 1];
+  memset(menuRxSetting2, 0, itemLength + 1);
+  getValueFromProgmem(menu_rx_setting_2, menuRxSetting2, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, menuRxSetting2);
+
   initMenuNodeItem(rxSettingTemplate->Items, 3, 0, "");
   rxSettingTemplate->Prev = rxMenu;  // Link back to the previous menu node
 
@@ -275,11 +348,14 @@ void navigateMenu(MenuNode* node, int8_t upOrDown) {
 
 uint8_t getNextAllowedChar(uint8_t ch, int8_t upOrDown) {
   uint8_t len = strlen(allowed_chars);
-  char *pch = strchr(allowed_chars, ch);
+  char allowedChars[len + 1];
+  memset(allowedChars, 0, (len + 1));
+  getValueFromProgmem(allowed_chars, allowedChars, len);
+  char *pch = strchr(allowedChars, ch);
   uint8_t index = 0;
 
   if (pch)  {
-    index = (pch - allowed_chars);
+    index = (pch - allowedChars);
 
     if (upOrDown == 1) { // up
       if (index >= len - 1) {
@@ -298,7 +374,7 @@ uint8_t getNextAllowedChar(uint8_t ch, int8_t upOrDown) {
       }
     }
   }
-  return allowed_chars[index];
+  return allowedChars[index];
 }
 
 MenuNodeItem* getCurrentMenuNodeItem(MenuNode* node)  {
@@ -333,7 +409,7 @@ void selectMenu() {
 
         // initialize pagination
         setPagination(currentMenu->ScrollIndex);
-        
+
         showMenu(currentMenu);
       }
       else  {
@@ -457,11 +533,11 @@ void showMenu(MenuNode* node, void (*displayFunc)(uint8_t*))  {
 }
 
 void showMenuItemEditMode(MenuNode* node) {
-    switch (node->ParentId) {
-      case MENU_ID_RX_SETTING_RENAME:
-        showMenu(node, Screen_showMenuRxRename);  // print menu
-        break;
-    }
+  switch (node->ParentId) {
+    case MENU_ID_RX_SETTING_RENAME:
+      showMenu(node, Screen_showMenuRxRename);  // print menu
+      break;
+  }
 }
 
 void showRxRename(bool saveMode) {
@@ -473,4 +549,10 @@ void showRxRename(bool saveMode) {
 
 void softReset() {
   asm volatile ("  jmp 0");
+}
+
+void getValueFromProgmem(char* item, char* value, uint8_t len) {
+  for (uint8_t i = 0; i < len; i++) {
+    value[i] = pgm_read_byte_near(item + i);
+  }
 }

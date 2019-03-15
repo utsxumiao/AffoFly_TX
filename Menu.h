@@ -57,5 +57,6 @@ void showMenu(MenuNode* node, void (*displayFunc)(uint8_t*));
 void showMenuItemEditMode(MenuNode* node);
 void showRxRename(bool saveMode);
 void softReset();
+void getValueFromProgmem(char* item, char* value, uint8_t len);
 
 #endif /* MENU_H_ */
