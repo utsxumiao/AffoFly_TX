@@ -57,13 +57,18 @@ void setup() {
 #ifdef DEBUG
   EEPROM_dumpAll();
 #endif
+#ifdef BUZZER
+  pinMode(BUZZER_PIN, OUTPUT);
+#endif
   TX_MODE = MODE_CONTROL;
   pinMode(FN_PIN, INPUT_PULLUP);
   if (digitalRead(FN_PIN) == LOW) {
     TX_MODE = MODE_MENU;
   }
+#ifdef SHOW_WELCOME_SCREEN
   Display_showWelcomeScreen(PROJECT_NAME, PROJECT_VERSION);
   delay(2000);
+#endif
 }
 
 void loop() {
@@ -114,7 +119,6 @@ void txModeInit() {
 }
 
 void txModeProcess(uint32_t currentTime) {
-  //TODO: loop timing control
   switch (TX_MODE) {
     case MODE_CONTROL:
       Control_checkButtons(currentTime);
@@ -145,6 +149,8 @@ void txModeProcess(uint32_t currentTime) {
       //Bind workflow is self-handled
       break;
   }
+
+  Buzzer_beep(currentTime);
 }
 
 void Control_init() {
@@ -322,6 +328,10 @@ void Control_checkButtons(uint32_t currentTime) {
             break;
 #endif
         }
+
+        BuzzerBeepPattern buzzerPattern = buttonPress;
+        Buzzer_init(buzzerPattern);
+
 #ifdef DEBUG
         Serial.print(F("Button pressed, index: "));
         Serial.print(i);

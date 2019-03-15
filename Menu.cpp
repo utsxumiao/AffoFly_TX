@@ -5,6 +5,7 @@
 #include "EEPROM.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
+#include "Buzzer.h"
 #include "Menu.h"
 #include "Screen.h"
 
@@ -86,6 +87,9 @@ void Menu_checkButtons() {
         default:
           break;
       }
+
+      BuzzerBeepPattern buzzerPattern = buttonPress;
+      Buzzer_init(buzzerPattern);
     }
   }
 }

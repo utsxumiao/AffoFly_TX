@@ -2,11 +2,11 @@
 #define BUZZER_H_
 
 #ifdef BUZZER
-extern uint32_t buzzerBeepPattern[6]; // firstBeepDuration, firstPauseDuration, secondBeepDuration, secondPauseDuration, thirdBeepDuration, cyclePauseDuration
-extern uint8_t buzzerBeepRepeat;
-extern bool shouldRefresh;
 
+void Buzzer_init(BuzzerBeepPattern pattern);
 void Buzzer_beep(uint32_t currentTime);
+
+void setBuzzerValues(uint32_t firstBeepDuration, uint32_t firstPauseDuration, uint32_t secondBeepDuration, uint32_t secondPauseDuration, uint32_t thirdBeepDuration, uint32_t thirdPauseDuration, uint8_t repeats);
 
 #endif
 

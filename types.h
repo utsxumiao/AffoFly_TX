@@ -68,4 +68,11 @@ typedef struct menu_pagination  {
   uint8_t EndIndex;
 } MenuPagination;
 
+typedef enum {
+  buttonPress,
+  lowBattery,
+  throttleWarning,
+  radioBinding
+} BuzzerBeepPattern;
+
 #endif /* TYPES_H_ */
