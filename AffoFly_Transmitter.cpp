@@ -330,7 +330,7 @@ void Control_checkButtons(uint32_t currentTime) {
         }
 
         BuzzerBeepPattern buzzerPattern = buttonPress;
-        Buzzer_init(buzzerPattern);
+        Buzzer_start(buzzerPattern);
 
 #ifdef DEBUG
         Serial.print(F("Button pressed, index: "));

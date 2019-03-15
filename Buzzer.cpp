@@ -10,7 +10,7 @@ uint8_t buzzerBeepRepeats = 0;
 uint8_t buzzerBeepPatternIndex = 0;
 uint32_t beepingTime = 0;
 
-void Buzzer_init(BuzzerBeepPattern pattern) {
+void Buzzer_start(BuzzerBeepPattern pattern) {
   switch (pattern) {
     case buttonPress:
       setBuzzerValues(50000, 0, 0, 0, 0, 0, 1);

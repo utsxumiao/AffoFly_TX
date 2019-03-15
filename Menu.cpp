@@ -89,7 +89,7 @@ void Menu_checkButtons() {
       }
 
       BuzzerBeepPattern buzzerPattern = buttonPress;
-      Buzzer_init(buzzerPattern);
+      Buzzer_start(buzzerPattern);
     }
   }
 }
