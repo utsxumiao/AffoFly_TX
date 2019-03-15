@@ -34,7 +34,7 @@ void setLowVoltageAlarm(uint16_t voltage) {
 }
 
 uint16_t readVoltage() {
-  return 340;
+  return 400;
 }
 
 #endif

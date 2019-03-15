@@ -137,7 +137,12 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32
     Serial.print("Low Voltage: ");  Serial.print(LOW_VOLTAGE); Serial.print("    ");
     Serial.println();
 #ifdef SHOW_RATE
-    Serial.print("Loop Rate: ");
+    Serial.print("Loop Rate: ");  Serial.print(rateData.LoopRate); Serial.print("   ");
+    Serial.print("Button Check Rate: ");  Serial.print(rateData.ButtonCheckRate); Serial.print("   ");
+    Serial.print("Data Get Rate: ");  Serial.print(rateData.DataGetRate); Serial.print("   ");
+    Serial.print("Radio Rate: ");  Serial.print(rateData.RadioRate); Serial.print("   ");
+    Serial.print("CPPM Rate: ");  Serial.print(rateData.CPPMRate); Serial.print("   ");
+    Serial.println();
 #endif
   }
 }
