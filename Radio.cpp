@@ -13,7 +13,7 @@
 #include "Radio.h"
 
 uint32_t previousRadioSendTime = 0;
-static const uint16_t radioSendInterval = 20000; // 50p/s
+static const uint16_t radioSendInterval = 10000; // 100p/s
 
 
 /**************************************************************************************/
@@ -24,6 +24,10 @@ static const uint16_t radioSendInterval = 20000; // 50p/s
 RF24 radio(NRF_CE_PIN, NRF_CSN_PIN);
 uint8_t radioPaLevel = RF24_PA_MAX;
 MenuNode* bindMenu = (MenuNode*)malloc(sizeof(MenuNode));
+
+#ifdef SHOW_RATE
+uint16_t RADIO_COUNT;
+#endif
 
 void Radio_init() {
   radio.begin();
@@ -62,6 +66,9 @@ void Radio_sendData(ControlData controlData, uint32_t currentTime) {
     //#endif
     controlData.Token = CURRENT_RX_CONFIG.Token;
     radio.write(&controlData, sizeof(ControlData));
+#ifdef SHOW_RATE
+    RADIO_COUNT++;
+#endif
   }
 }
 

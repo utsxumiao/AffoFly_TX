@@ -7,7 +7,9 @@
 #include "CPPM.h"
 
 #if defined(SIMULATOR) || defined(BUDDY)
-
+#ifdef SHOW_RATE
+uint16_t CPPM_COUNT = 0;
+#endif
 uint16_t PPM[CHANNEL_COUNT];
 
 void CPPM_init() {
@@ -35,7 +37,9 @@ void CPPM_outputData(ControlData controlData) {
   PPM[8] = controlData.Aux5;
   PPM[9] = controlData.Aux6;
   PPM[10] = controlData.Swd1;
-  PPM[11] = controlData.Swd2;
+#ifdef SHOW_RATE
+  CPPM_COUNT++;
+#endif
 }
 
 ISR(TIMER1_COMPA_vect) {

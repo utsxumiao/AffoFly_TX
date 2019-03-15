@@ -38,6 +38,14 @@ struct RxBindData {
   uint32_t Token;
 };
 
+struct RateData {
+  uint16_t LoopRate;
+  uint16_t ButtonCheckRate;
+  uint16_t DataGetRate;
+  uint16_t RadioRate;
+  uint16_t CPPMRate;
+};
+
 typedef struct menu_node_item {
   uint8_t Id;
   char* Menu;
@@ -70,7 +78,7 @@ typedef struct menu_pagination  {
 
 typedef enum {
   buttonPress,
-  lowBattery,
+  lowVoltage,
   throttleWarning,
   radioBinding
 } BuzzerBeepPattern;

@@ -40,14 +40,23 @@ Bounce bounces[BUTTON_COUNT];
 // Loop time control
 uint32_t currentTime;
 
-static const uint16_t buttonCheckInterval = 10000;
+static const uint16_t buttonCheckInterval = 5000;
 uint32_t previousButtonCheckTime = 0;
 //uint8_t buttonCheckInterval = 5; //5ms for debounce, bouncing pretty much dies out after 4ms.
-static const uint16_t getDataInterval = 20000;
+static const uint16_t getDataInterval = 10000;
 uint32_t previousGetDataTime = 0;
 
-
 ControlData controlData;
+
+#ifdef SHOW_RATE
+static const uint32_t rateRefreshInterval = 1000000;
+uint32_t previousRateRefreshTime = 0;
+uint16_t loopCount = 0;
+uint16_t buttonCheckCount = 0;
+uint16_t dataGetCount = 0;
+
+RateData rateData;
+#endif
 
 void setup() {
 #if defined(DEBUG) || defined(SCREEN_SERIAL_MONITOR)
@@ -76,7 +85,25 @@ void loop() {
     txModeInit();
     PREVIOUS_TX_MODE = TX_MODE;
   }
-  txModeProcess(micros());
+  uint32_t currentTime = micros();
+  txModeProcess(currentTime);
+#ifdef SHOW_RATE
+  loopCount++;
+  if (currentTime - previousRateRefreshTime >= rateRefreshInterval) {
+    previousRateRefreshTime = currentTime;
+    rateData.LoopRate = loopCount;
+    rateData.ButtonCheckRate = buttonCheckCount;
+    rateData.DataGetRate = dataGetCount;
+    rateData.RadioRate = RADIO_COUNT;
+    rateData.CPPMRate = CPPM_COUNT;
+    
+    loopCount = 0;
+    buttonCheckCount = 0;
+    dataGetCount = 0;
+    RADIO_COUNT = 0;
+    CPPM_COUNT = 0;
+  }
+#endif
 }
 
 void txModeInit() {
@@ -124,12 +151,14 @@ void txModeProcess(uint32_t currentTime) {
       Control_checkButtons(currentTime);
       Control_getData(currentTime);
       Radio_sendData(controlData, currentTime);
+      Screen_showControlScreen(controlData, rateData, currentTime);
       break;
 #ifdef SIMULATOR
     case MODE_SIMULATOR:
       Control_checkButtons(currentTime);
       Control_getData(currentTime);
       CPPM_outputData(controlData);
+      Screen_showControlScreen(controlData, rateData, currentTime);
       break;
 #endif
 #ifdef BUDDY
@@ -149,7 +178,7 @@ void txModeProcess(uint32_t currentTime) {
       //Bind workflow is self-handled
       break;
   }
-
+  Battery_read(currentTime);
   Buzzer_beep(currentTime);
 }
 
@@ -357,6 +386,9 @@ void Control_checkButtons(uint32_t currentTime) {
 #endif
       }
     }
+#ifdef SHOW_RATE
+    buttonCheckCount++;
+#endif
   }
 }
 
@@ -394,6 +426,9 @@ void Control_getData(uint32_t currentTime) {
 #endif
 #ifdef SWD_2
     controlData.Swd2      = mapJoystickValues(analogRead(SWD2_PIN), 0, 511, 1023, false);
+#endif
+#ifdef SHOW_RATE
+    dataGetCount++;
 #endif
   }
 }

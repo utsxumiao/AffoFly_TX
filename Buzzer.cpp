@@ -15,8 +15,8 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
     case buttonPress:
       setBuzzerValues(50000, 0, 0, 0, 0, 0, 1);
       break;
-    case lowBattery:
-      setBuzzerValues(1000000, 1000000, 0, 0, 0, 0, 10);
+    case lowVoltage:
+      setBuzzerValues(1000000, 1000000, 0, 0, 0, 0, 3);
       break;
     case throttleWarning:
       setBuzzerValues(100000, 100000, 0, 0, 0, 0, 100);

@@ -3,10 +3,14 @@
 #include "config.h"
 #include "def.h"
 #include "Bounce2.h"
+#include "Battery.h"
 #include "AffoFly_Transmitter.h"
 #include "Screen.h"
 
 #ifdef SCREEN_SERIAL_MONITOR
+
+static const uint32_t controlScreenRefreshInterval = 200000;  //5hz
+uint32_t previousControlScreenRefreshTime = 0;
 
 void Screen_showWelcomeScreen(char* projectName, char* projectVersion) {
   Serial.println(F("================================"));
@@ -122,6 +126,20 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
   Serial.println(F("="));
 
   *lineCount = 2;
+}
+
+void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime) {
+  if (currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
+    previousControlScreenRefreshTime = currentTime;
+    Serial.print("RX Name: ");  Serial.print(CURRENT_RX_CONFIG.Name); Serial.print("    ");
+    Serial.print("TX Mode: ");  Serial.print(TX_MODE); Serial.print("    ");
+    Serial.print("Battery Voltage: ");  Serial.print(BATTERY_VOLTAGE); Serial.print("    ");
+    Serial.print("Low Voltage: ");  Serial.print(LOW_VOLTAGE); Serial.print("    ");
+    Serial.println();
+#ifdef SHOW_RATE
+    Serial.print("Loop Rate: ");
+#endif
+  }
 }
 
 #endif
