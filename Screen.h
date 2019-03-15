@@ -1,5 +1,5 @@
-#ifndef Display_H_
-#define Display_H_
+#ifndef Screen_H_
+#define Screen_H_
 
 void Screen_showWelcomeScreen(char* projectName, char* projectVersion);
 void Screen_showModeScreen(uint8_t txMode);
@@ -9,4 +9,4 @@ void Screen_showMenuRxRename(uint8_t *lineCount);
 extern MenuItemEdit itemEdit;
 extern MenuPagination pagination;
 
-#endif /* Display_H_ */
+#endif /* Screen_H_ */
