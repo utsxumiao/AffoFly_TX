@@ -16,6 +16,7 @@ static const uint8_t pixelsPerTrim = 1;
 static const uint8_t rcValuePerPixel = 25;
 static const uint32_t controlScreenRefreshInterval = 5000000; // actively refresh control screen every 5 seconds
 uint32_t previousControlScreenRefreshTime = 0;
+bool controlScreenForceRefresh = true;
 
 void Screen_init() {
   u8g2.begin();

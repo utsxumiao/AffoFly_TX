@@ -8,7 +8,8 @@ void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t in
 void Screen_showMenuRxRename(uint8_t *lineCount);
 void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute);
 
+extern bool controlScreenForceRefresh;
 extern MenuItemEdit itemEdit;
 extern MenuPagination pagination;
 
-#endif /* Screen_H_ */forceExecute
+#endif /* Screen_H_ */
