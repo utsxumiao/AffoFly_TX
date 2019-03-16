@@ -14,7 +14,7 @@ U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SD
 
 static const uint8_t pixelsPerTrim = 1;
 static const uint8_t rcValuePerPixel = 25;
-static const uint32_t controlScreenRefreshInterval = 5000000; // actively refresh control screen every 5 seconds
+static const uint32_t controlScreenRefreshInterval = 2000000; // actively refresh control screen every 5 seconds
 uint32_t previousControlScreenRefreshTime = 0;
 bool controlScreenForceRefresh = true;
 
@@ -77,7 +77,7 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
 
 }
 
-void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute) {
+void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
   if (forceExecute || currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
     previousControlScreenRefreshTime = currentTime;
     u8g2.firstPage();
@@ -97,7 +97,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32
       u8g2.print(rateData.RadioRate);
       u8g2.drawLine(0, 15, 128, 15);
 
-      // Trim
+      // Trimming 
       // YAW
       u8g2.drawLine(5, 61, 49, 61);
       u8g2.drawLine(27, 59, 27, 63);
@@ -114,6 +114,23 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32
       u8g2.drawLine(69, 16, 69, 60);
       u8g2.drawLine(67, 38, 71, 38);
       u8g2.drawBox(68, 37 - CURRENT_RX_CONFIG.PitchTrim * pixelsPerTrim, 3, 3);
+      // Current Stick Pointer
+      if (trimming) {
+        switch (trimStickIndex) {
+          case 0: //YAW
+            u8g2.drawLine(52, 60, 52, 62);
+            break;
+          case 1: //THR
+            u8g2.drawLine(57, 63, 59, 63);
+            break;
+          case 2: //PIT
+            u8g2.drawLine(68, 63, 70, 63);
+            break;
+          case 3: //ROL
+            u8g2.drawLine(75, 60, 75, 62);
+            break;
+        }
+      }
 
       // AUX & SWD Channels
       uint8_t channelY = 27;
