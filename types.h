@@ -25,7 +25,7 @@ struct RxConfig {
   int8_t    YawTrim;
   int8_t    PitchTrim;
   int8_t    RollTrim;
-  char      Name[10];
+  char      Name[11];
 };
 
 struct TxBindData {
