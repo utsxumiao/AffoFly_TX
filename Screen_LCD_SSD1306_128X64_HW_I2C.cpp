@@ -93,8 +93,14 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       u8g2.print(CURRENT_RX_CONFIG.Name);
 
       // Rate
-      u8g2.setCursor(110, 10);
-      u8g2.print(rateData.RadioRate);
+      if (TX_MODE == MODE_CONTROL || TX_MODE == MODE_STUDENT) {
+        u8g2.setCursor(110, 10);
+        u8g2.print(rateData.RadioRate);
+      }
+      if (TX_MODE == MODE_SIMULATOR || TX_MODE == MODE_TRAINER) {
+        u8g2.setCursor(100, 10);
+        u8g2.print(rateData.CPPMRate);
+      }
       u8g2.drawLine(0, 15, 128, 15);
 
       // Trimming 

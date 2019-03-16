@@ -43,7 +43,7 @@ void CPPM_outputData(ControlData controlData) {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  if (TX_MODE != MODE_SIMULATOR) return; //TODO: trainer/student
+  if (TX_MODE != MODE_SIMULATOR && TX_MODE != MODE_TRAINER) return; //TODO: trainer/student
   static boolean state = true;
   TCNT1 = 0;
   if ( state ) {
