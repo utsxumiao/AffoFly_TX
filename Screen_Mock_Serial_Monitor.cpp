@@ -128,8 +128,8 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
   *lineCount = 2;
 }
 
-void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime) {
-  if (currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
+void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute) {
+  if (forceExecute || currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
     previousControlScreenRefreshTime = currentTime;
     Serial.print("RX Name: ");  Serial.print(CURRENT_RX_CONFIG.Name); Serial.print("    ");
     Serial.print("TX Mode: ");  Serial.print(TX_MODE); Serial.print("    ");

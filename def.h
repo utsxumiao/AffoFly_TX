@@ -93,7 +93,7 @@
 #define RADIO_RX_ID_UPPER_BOUNDARY      10
 #define RADIO_CHANNEL_LOWER_BOUNDARY    100
 #define RADIO_CHANNEL_UPPER_BOUNDARY    125
-#define RX_TRIM_STEP_RANGE              15
+#define RX_TRIM_STEP_RANGE              20
 #define RX_TRIM_STEP_WIDTH              2
 #define RX_TOTAL_COUNT                  10
 #define RX_NAME_MAX_LENGTH              10
@@ -120,8 +120,8 @@
 
 #elif defined(SCREEN_LCD_SSD1306_128X64_HW_I2C)
   #define SCREEN_WIDTH              30
-  #define SCREEN_LINES              8
-  #define SCREEN_MENU_LINES         8
+  #define SCREEN_LINES              4
+  #define SCREEN_MENU_LINES         4
   #define SCREEN_MENU_HEADER_ROWS   0
   #define LINE_ITEM_MAX_LEN         12
 

@@ -40,6 +40,8 @@ Bounce bounces[BUTTON_COUNT];
 // Loop time control
 uint32_t currentTime;
 
+static const uint16_t mainLoopInterval = 500;
+uint32_t previousMainLoopTime = 0;
 static const uint16_t buttonCheckInterval = 5000;
 uint32_t previousButtonCheckTime = 0;
 //uint8_t buttonCheckInterval = 5; //5ms for debounce, bouncing pretty much dies out after 4ms.
@@ -66,6 +68,7 @@ void setup() {
 #ifdef DEBUG
   EEPROM_dumpAll();
 #endif
+  Screen_init();
 #ifdef BUZZER
   pinMode(BUZZER_PIN, OUTPUT);
 #endif
@@ -111,9 +114,10 @@ void txModeInit() {
   Serial.print(F("TX MODE: "));
   Serial.println(TX_MODE);
 #endif
-
+#ifdef SHOW_MODE_SCREEN
   Screen_showModeScreen(TX_MODE);
   delay(1000);
+#endif
 
   switch (TX_MODE) {
     case MODE_CONTROL:
@@ -149,16 +153,16 @@ void txModeProcess(uint32_t currentTime) {
   switch (TX_MODE) {
     case MODE_CONTROL:
       Control_checkButtons(currentTime);
-      Control_getData(currentTime);
+      Control_getData(currentTime, false);
       Radio_sendData(controlData, currentTime);
-      Screen_showControlScreen(controlData, rateData, currentTime);
+      Screen_showControlScreen(controlData, rateData, currentTime, false);
       break;
 #ifdef SIMULATOR
     case MODE_SIMULATOR:
       Control_checkButtons(currentTime);
-      Control_getData(currentTime);
+      Control_getData(currentTime, false);
       CPPM_outputData(controlData);
-      Screen_showControlScreen(controlData, rateData, currentTime);
+      Screen_showControlScreen(controlData, rateData, currentTime, false);
       break;
 #endif
 #ifdef BUDDY
@@ -360,7 +364,9 @@ void Control_checkButtons(uint32_t currentTime) {
 
         BuzzerBeepPattern buzzerPattern = buttonPress;
         Buzzer_start(buzzerPattern);
-
+        
+        Control_getData(currentTime, true);
+        Screen_showControlScreen(controlData, rateData, currentTime, true);
 #ifdef DEBUG
         Serial.print(F("Button pressed, index: "));
         Serial.print(i);
@@ -392,8 +398,8 @@ void Control_checkButtons(uint32_t currentTime) {
   }
 }
 
-void Control_getData(uint32_t currentTime) {
-  if (currentTime - previousGetDataTime >= getDataInterval) {
+void Control_getData(uint32_t currentTime, bool forceExecute) {
+  if (forceExecute || currentTime - previousGetDataTime >= getDataInterval) {
     previousGetDataTime = currentTime;
     //TODO: Reverse channel setting should be considered
     //TODO: Use port manipulation for better performance

@@ -10,7 +10,7 @@ void Control_initConfig();
 void Control_initButtons();
 void Control_resetData();
 void Control_checkButtons(uint32_t currentTime);
-void Control_getData(uint32_t currentTime);
+void Control_getData(uint32_t currentTime, bool forceExecute);
 uint16_t mapJoystickValues(uint16_t val, uint16_t lower, uint16_t middle, uint16_t upper, bool reverse);
 void trimStick(bool increase);
 void txModeInit();
