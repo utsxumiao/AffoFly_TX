@@ -476,6 +476,10 @@ void handleMenu(uint8_t menuId, char* title) {
         TX_MODE = MODE_STUDENT;
         break;
 #endif
+      case MENU_ID_RX_SETTING_SELECT:
+        EEPROM_writeCurrentRxId(selectedRxConfig.Id);
+        CURRENT_RX_CONFIG = EEPROM_readRxConfig(selectedRxConfig.Id);
+        break;
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
         break;

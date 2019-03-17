@@ -36,6 +36,10 @@ uint8_t EEPROM_readCurrentRxId() {
   return currentRxId;
 }
 
+void EEPROM_writeCurrentRxId(uint8_t currentRxId) {
+  EEPROM.put(CURRENT_RX_ID_EEPROM_ADDRESS, currentRxId);
+}
+
 RxConfig EEPROM_readRxConfig(uint8_t rxId) {
   RxConfig rxConfig;
   uint16_t rxConfigEepromAddress = RX_CONFIG_ALLOCATED_BYTES * (rxId - 1) + RX_CONFIG_EEPROM_START_ADDRESS;
