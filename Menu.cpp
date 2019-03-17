@@ -22,10 +22,9 @@
 
 #define MENU_STR_SETTING_TITLE_IDX      0
 #define MENU_STR_SETTING_0_IDX          8
-#define MENU_STR_SETTING_1_IDX          14
-#define MENU_STR_SETTING_2_IDX          25
-#define MENU_STR_SETTING_3_IDX          36
-#define MENU_STR_SETTING_LENGTH         44
+#define MENU_STR_SETTING_1_IDX          19
+#define MENU_STR_SETTING_2_IDX          30
+#define MENU_STR_SETTING_LENGTH         38
 
 #define MENU_STR_RX_TITLE_IDX           0
 #define MENU_STR_RX_0_IDX               11
@@ -38,7 +37,7 @@
 
 
 // Top menu items
-const char menu_top_title[] PROGMEM = "MODE";   // Menu title
+const char menu_top_title[] PROGMEM = "MODE";
 const char menu_top_0[] PROGMEM = "CONTROL";
 const char menu_top_1[] PROGMEM = "SIMULATOR";
 const char menu_top_2[] PROGMEM = "TRAINER";
@@ -47,10 +46,9 @@ const char menu_top_4[] PROGMEM = "SETTING";
 
 // Setting menu items
 const char menu_setting_title[] PROGMEM = "SETTING";
-const char menu_setting_0[] PROGMEM = "TX ID";
-const char menu_setting_1[] PROGMEM = "RX Setting";
-const char menu_setting_2[] PROGMEM = "Data Reset";
-const char menu_setting_3[] PROGMEM = "Restart";
+const char menu_setting_0[] PROGMEM = "RX Setting";
+const char menu_setting_1[] PROGMEM = "Data Reset";
+const char menu_setting_2[] PROGMEM = "Restart";
 
 // RX meu items
 const char menu_rx_title[] PROGMEM = "RX SETTING";
@@ -217,27 +215,22 @@ void setupMenu() {
   itemLength = strlen(menu_setting_title);
   currentMenuStr = &menu_setting_string[MENU_STR_SETTING_TITLE_IDX];
   getValueFromProgmem(menu_setting_title, currentMenuStr, itemLength);
-  initMenuNode(settingMenu, currentMenuStr, 4);
+  initMenuNode(settingMenu, currentMenuStr, 3);
 
   itemLength = strlen(menu_setting_0);
   currentMenuStr = &menu_setting_string[MENU_STR_SETTING_0_IDX];
   getValueFromProgmem(menu_setting_0, currentMenuStr, itemLength);
-  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, currentMenuStr);
+  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_RX, currentMenuStr);
 
   itemLength = strlen(menu_setting_1);
   currentMenuStr = &menu_setting_string[MENU_STR_SETTING_1_IDX];
   getValueFromProgmem(menu_setting_1, currentMenuStr, itemLength);
-  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, currentMenuStr);
+  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_DATA_RST, currentMenuStr);
 
   itemLength = strlen(menu_setting_2);
   currentMenuStr = &menu_setting_string[MENU_STR_SETTING_2_IDX];
   getValueFromProgmem(menu_setting_2, currentMenuStr, itemLength);
-  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, currentMenuStr);
-
-  itemLength = strlen(menu_setting_3);
-  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_3_IDX];
-  getValueFromProgmem(menu_setting_3, currentMenuStr, itemLength);
-  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, currentMenuStr);
+  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_SOFT_RST, currentMenuStr);
 
   settingMenu->Prev = topMenu;  // Link back to the previous menu node
   topMenu->Items[4].Item = settingMenu;  // Link with the menu item in the previous menu node
@@ -260,7 +253,7 @@ void setupMenu() {
   initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getRxName(8, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 8)]));
   initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getRxName(9, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 9)]));
   rxMenu->Prev = settingMenu;  // Link back to the previous menu node
-  settingMenu->Items[1].Item = rxMenu;  // Link with the menu item in the previous menu node
+  settingMenu->Items[0].Item = rxMenu;  // Link with the menu item in the previous menu node
 
   // RX Setting template --------------------
   rxSettingTemplate = (MenuNode*)malloc(sizeof(MenuNode));
@@ -452,11 +445,12 @@ void selectMenu() {
       MenuNodeItem* selectedNodeItem = getCurrentMenuNodeItem(currentMenu);
       uint8_t menuId = 0;
       char* title;
-
+      Serial.print("CurrentMenu: ");  Serial.println(currentMenu->Title);
       if (selectedNodeItem) {
         temp = selectedNodeItem->Item;
         menuId = selectedNodeItem->Id;
         title = selectedNodeItem->Menu;
+        Serial.print("SelectedNodeItem: "); Serial.println(selectedNodeItem->Menu);
       }
 
       if (temp) {
@@ -539,6 +533,10 @@ void handleMenu(uint8_t menuId, char* title) {
         TX_MODE = MODE_STUDENT;
         break;
 #endif
+      case MENU_ID_RX_SETTING_SELECT:
+        EEPROM_writeCurrentRxId(selectedRxConfig.Id);
+        CURRENT_RX_CONFIG = EEPROM_readRxConfig(selectedRxConfig.Id);
+        break;
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
         break;

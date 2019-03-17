@@ -14,8 +14,9 @@ U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SD
 
 static const uint8_t pixelsPerTrim = 1;
 static const uint8_t rcValuePerPixel = 25;
-static const uint32_t controlScreenRefreshInterval = 5000000; // actively refresh control screen every 5 seconds
+static const uint32_t controlScreenRefreshInterval = 2000000; // actively refresh control screen every 5 seconds
 uint32_t previousControlScreenRefreshTime = 0;
+controlScreenForceRefresh = true;
 
 void Screen_init() {
   u8g2.begin();
@@ -66,37 +67,93 @@ void Screen_showModeScreen(uint8_t txMode) {
 }
 
 void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
-  u8g2.setCursor(0, 10);
-  u8g2.print(title);
-  u8g2.drawLine(0, 15, 128, 15);
+  // Title
+  u8g2.firstPage();
+  do {
+    u8g2.setCursor(0, 10);
+    u8g2.print(title);
+    u8g2.drawLine(0, 15, 128, 15);
   
+    // Items
+    if (displayFunc) {
+      uint8_t lineCount = 0;
+      displayFunc(&lineCount);
+    } else {
+      uint8_t menuItemStartX = 10;
+      uint8_t menuItemStartY = 27;
+      uint8_t lineGap = 12;
+      for (uint8_t i = 0; i < count; i++) {
+        if (i >= pagination.StartIndex && i <= pagination.EndIndex) {
+          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * i);
+          u8g2.print(items[i].Menu);
+        }
+      }
+      // current item indicator
+      u8g2.setCursor(0, menuItemStartY + lineGap * index);
+      u8g2.print(F("*"));
+    }
+  } while (u8g2.nextPage());
 }
 
 void Screen_showMenuRxRename(uint8_t *lineCount) {
+  u8g2.firstPage();
+  do {
+    u8g2.setCursor(0, 10);
+    u8g2.print(F("RX RENAMING"));
+    u8g2.drawLine(0, 15, 128, 15);
 
+    for (uint8_t i = 0; i < strlen(itemEdit.Value); i++) {
+      u8g2.setCursor(6 * i + 10, 27);
+      if (i == itemEdit.Index) {
+        u8g2.setFontMode(1);
+        u8g2.drawBox(6 * i + 10 - 1, 18, 7, 10);
+        u8g2.setDrawColor(2);
+        u8g2.print(itemEdit.Value[i]);
+        u8g2.setFontMode(0);
+        u8g2.setDrawColor(1);
+      } else {
+        u8g2.print(itemEdit.Value[i]);
+      }
+    }
+  } while (u8g2.nextPage());
 }
 
-void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute) {
+void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
   if (forceExecute || currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
     previousControlScreenRefreshTime = currentTime;
     u8g2.firstPage();
     do {
       // Voltage
-      u8g2.setCursor(0, 10);
+      if (LOW_VOLTAGE) {
+        u8g2.setFontMode(1);
+        u8g2.drawBox(0, 0, 25, 12);
+        u8g2.setDrawColor(2);
+      }
+      u8g2.setCursor(1, 10);
       u8g2.print(BATTERY_VOLTAGE);
-      u8g2.setCursor(18, 10);
+      u8g2.setCursor(19, 10);
       u8g2.print("v");
+      if (LOW_VOLTAGE) {
+        u8g2.setFontMode(0);
+        u8g2.setDrawColor(1);
+      }
 
       // RX
       u8g2.setCursor(40, 10);
       u8g2.print(CURRENT_RX_CONFIG.Name);
 
       // Rate
-      u8g2.setCursor(110, 10);
-      u8g2.print(rateData.RadioRate);
+      if (TX_MODE == MODE_CONTROL || TX_MODE == MODE_STUDENT) {
+        u8g2.setCursor(110, 10);
+        u8g2.print(rateData.RadioRate);
+      }
+      if (TX_MODE == MODE_SIMULATOR || TX_MODE == MODE_TRAINER) {
+        u8g2.setCursor(100, 10);
+        u8g2.print(rateData.CPPMRate);
+      }
       u8g2.drawLine(0, 15, 128, 15);
 
-      // Trim
+      // Trimming 
       // YAW
       u8g2.drawLine(5, 61, 49, 61);
       u8g2.drawLine(27, 59, 27, 63);
@@ -113,6 +170,23 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32
       u8g2.drawLine(69, 16, 69, 60);
       u8g2.drawLine(67, 38, 71, 38);
       u8g2.drawBox(68, 37 - CURRENT_RX_CONFIG.PitchTrim * pixelsPerTrim, 3, 3);
+      // Current Stick Pointer
+      if (trimming) {
+        switch (trimStickIndex) {
+          case 0: //YAW
+            u8g2.drawLine(52, 60, 52, 62);
+            break;
+          case 1: //THR
+            u8g2.drawLine(57, 63, 59, 63);
+            break;
+          case 2: //PIT
+            u8g2.drawLine(68, 63, 70, 63);
+            break;
+          case 3: //ROL
+            u8g2.drawLine(75, 60, 75, 62);
+            break;
+        }
+      }
 
       // AUX & SWD Channels
       uint8_t channelY = 27;

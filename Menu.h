@@ -12,10 +12,9 @@
 #endif
 #define MENU_ID_TOP_SETTING         14
 
-#define MENU_ID_SETTING_TX          20
-#define MENU_ID_SETTING_RX          21
-#define MENU_ID_SETTING_DATA_RST    22
-#define MENU_ID_SETTING_SOFT_RST    23
+#define MENU_ID_SETTING_RX          20
+#define MENU_ID_SETTING_DATA_RST    21
+#define MENU_ID_SETTING_SOFT_RST    22
 
 #define MENU_ID_RX_0                30
 #define MENU_ID_RX_1                31
@@ -36,6 +35,7 @@
 
 #define ITEM_EDIT_NOT_SELECTED      100
 
+extern RxConfig selectedRxConfig;
 
 void Menu_init();
 void Menu_initButtons();

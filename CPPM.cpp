@@ -37,13 +37,14 @@ void CPPM_outputData(ControlData controlData) {
   PPM[8] = controlData.Aux5;
   PPM[9] = controlData.Aux6;
   PPM[10] = controlData.Swd1;
+  PPM[11] = controlData.Swd2;
 #ifdef SHOW_RATE
   CPPM_COUNT++;
 #endif
 }
 
 ISR(TIMER1_COMPA_vect) {
-  if (TX_MODE != MODE_SIMULATOR) return; //TODO: trainer/student
+  if (TX_MODE != MODE_SIMULATOR && TX_MODE != MODE_TRAINER) return; //TODO: trainer/student
   static boolean state = true;
   TCNT1 = 0;
   if ( state ) {

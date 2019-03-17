@@ -21,7 +21,7 @@ uint8_t PREVIOUS_TX_MODE = 255; //The initial value which should not be any vali
 uint8_t TX_MODE;
 RxConfig CURRENT_RX_CONFIG;
 bool trimming = false;
-uint8_t trimmingStickIndex = 0;
+int8_t trimmingStickIndex = 0;
 uint8_t trimmingSteps = 2;
 uint8_t aux1State = 0;
 uint8_t aux2State = 0;
@@ -58,6 +58,7 @@ uint16_t buttonCheckCount = 0;
 uint16_t dataGetCount = 0;
 
 RateData rateData;
+bool controlScreenForceRefresh = false;
 #endif
 
 void setup() {
@@ -159,14 +160,14 @@ void txModeProcess(uint32_t currentTime) {
       Control_checkButtons(currentTime);
       Control_getData(currentTime, false);
       Radio_sendData(controlData, currentTime);
-      Screen_showControlScreen(controlData, rateData, currentTime, false);
+      Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, false);
       break;
 #ifdef SIMULATOR
     case MODE_SIMULATOR:
       Control_checkButtons(currentTime);
       Control_getData(currentTime, false);
       CPPM_outputData(controlData);
-      Screen_showControlScreen(controlData, rateData, currentTime, false);
+      Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, false);
       break;
 #endif
 #ifdef BUDDY
@@ -339,10 +340,17 @@ void Control_checkButtons(uint32_t currentTime) {
             }
             break;
           case 4:
-            if (AUX_4_STATES > 1 && !trimming) {
-              aux4State++;
-              if (aux4State > AUX_4_STATES - 1) {
-                aux4State = 0;
+            if (trimming) {
+              trimmingStickIndex--;
+              if (trimmingStickIndex < 0) {
+                trimmingStickIndex = 3;
+              }
+            } else {
+              if (AUX_4_STATES > 1) {
+                aux4State++;
+                if (aux4State > AUX_4_STATES - 1) {
+                  aux4State = 0;
+                }
               }
             }
             break;
@@ -368,9 +376,11 @@ void Control_checkButtons(uint32_t currentTime) {
 
         BuzzerBeepPattern buzzerPattern = buttonPress;
         Buzzer_start(buzzerPattern);
-        
-        Control_getData(currentTime, true);
-        Screen_showControlScreen(controlData, rateData, currentTime, true);
+
+        if (controlScreenForceRefresh) {
+          Control_getData(currentTime, true);
+          Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, true);
+        }
 #ifdef DEBUG
         Serial.print(F("Button pressed, index: "));
         Serial.print(i);
@@ -451,5 +461,48 @@ uint16_t mapJoystickValues(uint16_t val, uint16_t lower, uint16_t middle, uint16
 }
 
 void trimStick(bool increase) {
-  //TODO: trimmingStickIndex, trimmingSteps, EEPROM
+  int8_t intendTrimValue;
+  switch (trimmingStickIndex) {
+    case 0: //YAW
+      intendTrimValue = increase ? CURRENT_RX_CONFIG.YawTrim + RX_TRIM_STEP_WIDTH : CURRENT_RX_CONFIG.YawTrim - RX_TRIM_STEP_WIDTH;
+      if (intendTrimValue > RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.YawTrim = RX_TRIM_STEP_RANGE;
+      } else if (intendTrimValue < -RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.YawTrim = -RX_TRIM_STEP_RANGE;
+      } else {
+        CURRENT_RX_CONFIG.YawTrim = intendTrimValue;
+      }
+      break;
+    case 1: //THR
+      intendTrimValue = increase ? CURRENT_RX_CONFIG.ThrottleTrim + RX_TRIM_STEP_WIDTH : CURRENT_RX_CONFIG.ThrottleTrim - RX_TRIM_STEP_WIDTH;
+      if (intendTrimValue > RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.ThrottleTrim = RX_TRIM_STEP_RANGE;
+      } else if (intendTrimValue < -RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.ThrottleTrim = -RX_TRIM_STEP_RANGE;
+      } else {
+        CURRENT_RX_CONFIG.ThrottleTrim = intendTrimValue;
+      }
+      break;
+    case 2: //PIT
+      intendTrimValue = increase ? CURRENT_RX_CONFIG.PitchTrim + RX_TRIM_STEP_WIDTH : CURRENT_RX_CONFIG.PitchTrim - RX_TRIM_STEP_WIDTH;
+      if (intendTrimValue > RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.PitchTrim = RX_TRIM_STEP_RANGE;
+      } else if (intendTrimValue < -RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.PitchTrim = -RX_TRIM_STEP_RANGE;
+      } else {
+        CURRENT_RX_CONFIG.PitchTrim = intendTrimValue;
+      }
+      break;
+    case 3: //ROL
+      intendTrimValue = increase ? CURRENT_RX_CONFIG.RollTrim + RX_TRIM_STEP_WIDTH : CURRENT_RX_CONFIG.RollTrim - RX_TRIM_STEP_WIDTH;
+      if (intendTrimValue > RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.RollTrim = RX_TRIM_STEP_RANGE;
+      } else if (intendTrimValue < -RX_TRIM_STEP_RANGE) {
+        CURRENT_RX_CONFIG.RollTrim = -RX_TRIM_STEP_RANGE;
+      } else {
+        CURRENT_RX_CONFIG.RollTrim = intendTrimValue;
+      }
+      break;
+  }
+  EEPROM_writeRxConfig(CURRENT_RX_CONFIG);
 }

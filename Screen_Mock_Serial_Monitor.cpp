@@ -150,4 +150,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32
   }
 }
 
+void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
+}
+
 #endif
