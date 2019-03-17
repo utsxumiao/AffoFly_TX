@@ -10,7 +10,7 @@
 #include "Screen.h"
 
 // Top menu items
-const char menu_top_title[] PROGMEM = "MODE";   // Menu title
+const char menu_top_title[] PROGMEM = "MODE";
 const char menu_top_0[] PROGMEM = "CONTROL";
 const char menu_top_1[] PROGMEM = "SIMULATOR";
 const char menu_top_2[] PROGMEM = "TRAINER";
@@ -19,10 +19,9 @@ const char menu_top_4[] PROGMEM = "SETTING";
 
 // Setting menu items
 const char menu_setting_title[] PROGMEM = "SETTING";
-const char menu_setting_0[] PROGMEM = "TX ID";
-const char menu_setting_1[] PROGMEM = "RX Setting";
-const char menu_setting_2[] PROGMEM = "Data Reset";
-const char menu_setting_3[] PROGMEM = "Restart";
+const char menu_setting_0[] PROGMEM = "RX Setting";
+const char menu_setting_1[] PROGMEM = "Data Reset";
+const char menu_setting_2[] PROGMEM = "Restart";
 
 // RX meu items
 const char menu_rx_title[] PROGMEM = "RX SETTING";
@@ -158,31 +157,25 @@ void setupMenu() {
   char menuSettingTitle[itemLength + 1];
   memset(menuSettingTitle, 0, itemLength + 1);
   getValueFromProgmem(menu_setting_title, menuSettingTitle, itemLength);
-  initMenuNode(settingMenu, menuSettingTitle, 4);
+  initMenuNode(settingMenu, menuSettingTitle, 3);
 
   itemLength = strlen(menu_setting_0);
   char menuSetting0[itemLength + 1];
   memset(menuSetting0, 0, itemLength + 1);
   getValueFromProgmem(menu_setting_0, menuSetting0, itemLength);
-  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, menuSetting0);
+  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_RX, menuSetting0);
 
   itemLength = strlen(menu_setting_1);
   char menuSetting1[itemLength + 1];
   memset(menuSetting1, 0, itemLength + 1);
   getValueFromProgmem(menu_setting_1, menuSetting1, itemLength);
-  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, menuSetting1);
+  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_DATA_RST, menuSetting1);
 
   itemLength = strlen(menu_setting_2);
   char menuSetting2[itemLength + 1];
   memset(menuSetting2, 0, itemLength + 1);
   getValueFromProgmem(menu_setting_2, menuSetting2, itemLength);
-  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, menuSetting2);
-
-  itemLength = strlen(menu_setting_3);
-  char menuSetting3[itemLength + 1];
-  memset(menuSetting3, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_3, menuSetting3, itemLength);
-  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, menuSetting3);
+  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_SOFT_RST, menuSetting2);
 
   settingMenu->Prev = topMenu;  // Link back to the previous menu node
   topMenu->Items[4].Item = settingMenu;  // Link with the menu item in the previous menu node
@@ -395,11 +388,12 @@ void selectMenu() {
       MenuNodeItem* selectedNodeItem = getCurrentMenuNodeItem(currentMenu);
       uint8_t menuId = 0;
       char* title;
-
+      Serial.print("CurrentMenu: ");  Serial.println(currentMenu->Title);
       if (selectedNodeItem) {
         temp = selectedNodeItem->Item;
         menuId = selectedNodeItem->Id;
         title = selectedNodeItem->Menu;
+        Serial.print("SelectedNodeItem: "); Serial.println(selectedNodeItem->Menu);
       }
 
       if (temp) {
