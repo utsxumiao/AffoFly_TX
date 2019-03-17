@@ -59,6 +59,7 @@
 /***************             General Configurations                ********************/
 /**************************************************************************************/
 //#define DEBUG
+//#define MEMORY_CHECK
 #define PROJECT_NAME        "AffoFly TX"
 #define PROJECT_VERSION     "v0.020"
 #define RADIO_PIPE          0xE8E8F0F0E1LL

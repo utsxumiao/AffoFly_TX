@@ -8,6 +8,34 @@
 #include "Buzzer.h"
 #include "Menu.h"
 #include "Screen.h"
+#if defined(MEMORY_CHECK)
+  #include "MemoryFree.h"
+#endif
+
+#define MENU_STR_TOP_TITLE_IDX          0
+#define MENU_STR_TOP_0_IDX              5
+#define MENU_STR_TOP_1_IDX              13
+#define MENU_STR_TOP_2_IDX              23
+#define MENU_STR_TOP_3_IDX              31
+#define MENU_STR_TOP_4_IDX              39
+#define MENU_STR_TOP_LENGTH             47
+
+#define MENU_STR_SETTING_TITLE_IDX      0
+#define MENU_STR_SETTING_0_IDX          8
+#define MENU_STR_SETTING_1_IDX          14
+#define MENU_STR_SETTING_2_IDX          25
+#define MENU_STR_SETTING_3_IDX          36
+#define MENU_STR_SETTING_LENGTH         44
+
+#define MENU_STR_RX_TITLE_IDX           0
+#define MENU_STR_RX_0_IDX               11
+#define MENU_STR_RX_LENGTH              ((RX_TOTAL_COUNT * (RX_NAME_MAX_LENGTH + 1)) + 11)
+
+#define MENU_STR_RX_SETTING_0_IDX       0
+#define MENU_STR_RX_SETTING_1_IDX       7
+#define MENU_STR_RX_SETTING_2_IDX       14
+#define MENU_STR_RX_SETTING_LENGTH      19
+
 
 // Top menu items
 const char menu_top_title[] PROGMEM = "MODE";   // Menu title
@@ -27,25 +55,40 @@ const char menu_setting_3[] PROGMEM = "Restart";
 // RX meu items
 const char menu_rx_title[] PROGMEM = "RX SETTING";
 const char allowed_chars[] PROGMEM = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_:*";
-char menu_rx[RX_TOTAL_COUNT][RX_NAME_MAX_LENGTH + 1];
 
 // RX setting menu items
 const char menu_rx_setting_0[] PROGMEM = "Select";
 const char menu_rx_setting_1[] PROGMEM = "Rename";
 const char menu_rx_setting_2[] PROGMEM = "Bind";
 
-MenuNode* topMenu;
-MenuNode* currentMenu;
-MenuNode* rxSettingTemplate;
-MenuNode* rxRenameTemplate;
+MenuNode* topMenu = NULL;
+MenuNode* currentMenu = NULL;
+MenuNode* rxSettingTemplate = NULL;
+MenuNode* rxRenameTemplate = NULL;
 MenuItemEdit itemEdit;
 MenuPagination pagination;
 RxConfig selectedRxConfig;
 
+char *menu_top_string = NULL;
+char *menu_setting_string = NULL;
+char *menu_rx_string = NULL;
+char *menu_rx_setting_string = NULL;
+
+
 void Menu_init() {
+#if defined(MEMORY_CHECK)
+  Serial.print("Menu_init() before. Free Memory: ");
+  Serial.println(freeMemory());
+#endif
+
   Menu_initButtons();
   setupMenu();
   showMenu(currentMenu);
+
+#if defined(MEMORY_CHECK)
+  Serial.print("Menu_init() after. Free Memory: ");
+  Serial.println(freeMemory());
+#endif
 }
 
 void Menu_initButtons() {
@@ -98,6 +141,28 @@ void setupMenu() {
   MenuNode* settingMenu;
   MenuNode* rxMenu;
 
+  if (topMenu)  {
+    return; // do not run the rest of the code if 'topMenu' has been allocated, which means that the menu structure is already set up.
+  }
+
+  // allocate strings first
+  if (!menu_top_string)  {
+    menu_top_string = (char*) malloc (MENU_STR_TOP_LENGTH);
+    memset(menu_top_string, 0, MENU_STR_TOP_LENGTH);
+  }
+  if (!menu_setting_string)  {
+    menu_setting_string = (char*) malloc (MENU_STR_SETTING_LENGTH);
+    memset(menu_setting_string, 0, MENU_STR_SETTING_LENGTH);
+  }
+  if (!menu_rx_string)  {
+    menu_rx_string = (char*) malloc (MENU_STR_RX_LENGTH);
+    memset(menu_rx_string, 0, MENU_STR_RX_LENGTH);
+  }
+  if (!menu_rx_setting_string)  {
+    menu_rx_setting_string = (char*) malloc (MENU_STR_RX_SETTING_LENGTH);
+    memset(menu_rx_setting_string, 0, MENU_STR_RX_SETTING_LENGTH);
+  }
+
   // Top menu --------------------
   topMenu = (MenuNode*)malloc(sizeof(MenuNode));
   uint8_t topMenuNodeItemCount = 2;
@@ -107,82 +172,72 @@ void setupMenu() {
 #ifdef BUDDY
   topMenuNodeItemCount += 2;
 #endif
+  char* currentMenuStr;
   uint8_t itemLength = strlen(menu_top_title);
-  char menuTopTitle[itemLength + 1];
-  memset(menuTopTitle, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_title, menuTopTitle, itemLength);
-  initMenuNode(topMenu, menuTopTitle, topMenuNodeItemCount);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_TITLE_IDX];
+  getValueFromProgmem(menu_top_title, currentMenuStr, itemLength);
+  initMenuNode(topMenu, currentMenuStr, topMenuNodeItemCount);
 
   uint8_t topMenuNodeItemIndex = 0;
   itemLength = strlen(menu_top_0);
-  char menuTop0[itemLength + 1];
-  memset(menuTop0, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_0, menuTop0, itemLength);
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_CONTROL, menuTop0);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_0_IDX];
+  getValueFromProgmem(menu_top_0, currentMenuStr, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_CONTROL, currentMenuStr);
 
 #ifdef SIMULATOR
   topMenuNodeItemIndex++;
   itemLength = strlen(menu_top_1);
-  char menuTop1[itemLength + 1];
-  memset(menuTop1, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_1, menuTop1, itemLength);
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SIMULATOR, menuTop1);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_1_IDX];
+  getValueFromProgmem(menu_top_1, currentMenuStr, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SIMULATOR, currentMenuStr);
 #endif
 #ifdef BUDDY
   topMenuNodeItemIndex++;
   itemLength = strlen(menu_top_2);
-  char menuTop2[itemLength + 1];
-  memset(menuTop2, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_2, menuTop2, itemLength);
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_TRAINER, menuTop2);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_2_IDX];
+  getValueFromProgmem(menu_top_2, currentMenuStr, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_TRAINER, currentMenuStr);
 
   topMenuNodeItemIndex++;
   itemLength = strlen(menu_top_3);
-  char menuTop3[itemLength + 1];
-  memset(menuTop3, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_3, menuTop3, itemLength);
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_STUDENT, menuTop3);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_3_IDX];
+  getValueFromProgmem(menu_top_3, currentMenuStr, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_STUDENT, currentMenuStr);
 #endif
   topMenuNodeItemIndex++;
   itemLength = strlen(menu_top_4);
-  char menuTop4[itemLength + 1];
-  memset(menuTop4, 0, itemLength + 1);
-  getValueFromProgmem(menu_top_4, menuTop4, itemLength);
-  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SETTING, menuTop4);
+  currentMenuStr = &menu_top_string[MENU_STR_TOP_4_IDX];
+  getValueFromProgmem(menu_top_4, currentMenuStr, itemLength);
+  initMenuNodeItem(topMenu->Items, topMenuNodeItemIndex, MENU_ID_TOP_SETTING, currentMenuStr);
 
   currentMenu = topMenu;  // Top menu is seleted by default
 
   // Setting menu ---------------------
   settingMenu = (MenuNode*)malloc(sizeof(MenuNode));
   itemLength = strlen(menu_setting_title);
-  char menuSettingTitle[itemLength + 1];
-  memset(menuSettingTitle, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_title, menuSettingTitle, itemLength);
-  initMenuNode(settingMenu, menuSettingTitle, 4);
+  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_TITLE_IDX];
+  getValueFromProgmem(menu_setting_title, currentMenuStr, itemLength);
+  initMenuNode(settingMenu, currentMenuStr, 4);
 
   itemLength = strlen(menu_setting_0);
-  char menuSetting0[itemLength + 1];
-  memset(menuSetting0, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_0, menuSetting0, itemLength);
-  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, menuSetting0);
+  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_0_IDX];
+  getValueFromProgmem(menu_setting_0, currentMenuStr, itemLength);
+  initMenuNodeItem(settingMenu->Items, 0, MENU_ID_SETTING_TX, currentMenuStr);
 
   itemLength = strlen(menu_setting_1);
-  char menuSetting1[itemLength + 1];
-  memset(menuSetting1, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_1, menuSetting1, itemLength);
-  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, menuSetting1);
+  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_1_IDX];
+  getValueFromProgmem(menu_setting_1, currentMenuStr, itemLength);
+  initMenuNodeItem(settingMenu->Items, 1, MENU_ID_SETTING_RX, currentMenuStr);
 
   itemLength = strlen(menu_setting_2);
-  char menuSetting2[itemLength + 1];
-  memset(menuSetting2, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_2, menuSetting2, itemLength);
-  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, menuSetting2);
+  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_2_IDX];
+  getValueFromProgmem(menu_setting_2, currentMenuStr, itemLength);
+  initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_DATA_RST, currentMenuStr);
 
   itemLength = strlen(menu_setting_3);
-  char menuSetting3[itemLength + 1];
-  memset(menuSetting3, 0, itemLength + 1);
-  getValueFromProgmem(menu_setting_3, menuSetting3, itemLength);
-  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, menuSetting3);
+  currentMenuStr = &menu_setting_string[MENU_STR_SETTING_3_IDX];
+  getValueFromProgmem(menu_setting_3, currentMenuStr, itemLength);
+  initMenuNodeItem(settingMenu->Items, 3, MENU_ID_SETTING_SOFT_RST, currentMenuStr);
 
   settingMenu->Prev = topMenu;  // Link back to the previous menu node
   topMenu->Items[4].Item = settingMenu;  // Link with the menu item in the previous menu node
@@ -190,21 +245,20 @@ void setupMenu() {
   // RX Selection menu ----------------
   rxMenu = (MenuNode*)malloc(sizeof(MenuNode));
   itemLength = strlen(menu_rx_title);
-  char menuRxTitle[itemLength + 1];
-  memset(menuRxTitle, 0, itemLength + 1);
-  getValueFromProgmem(menu_rx_title, menuRxTitle, itemLength);
-  initMenuNode(rxMenu, menuRxTitle, RX_TOTAL_COUNT);
+  currentMenuStr = &menu_rx_string[MENU_STR_RX_TITLE_IDX];
+  getValueFromProgmem(menu_rx_title, currentMenuStr, itemLength);
+  initMenuNode(rxMenu, currentMenuStr, RX_TOTAL_COUNT);
 
-  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getRxName(0));
-  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getRxName(1));
-  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getRxName(2));
-  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, getRxName(3));
-  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, getRxName(4));
-  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, getRxName(5));
-  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, getRxName(6));
-  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, getRxName(7));
-  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getRxName(8));
-  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getRxName(9));
+  initMenuNodeItem(rxMenu->Items, 0, MENU_ID_RX_0, getRxName(0, &menu_rx_string[MENU_STR_RX_0_IDX]));
+  initMenuNodeItem(rxMenu->Items, 1, MENU_ID_RX_1, getRxName(1, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 1)]));
+  initMenuNodeItem(rxMenu->Items, 2, MENU_ID_RX_2, getRxName(2, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 2)]));
+  initMenuNodeItem(rxMenu->Items, 3, MENU_ID_RX_3, getRxName(3, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 3)]));
+  initMenuNodeItem(rxMenu->Items, 4, MENU_ID_RX_4, getRxName(4, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 4)]));
+  initMenuNodeItem(rxMenu->Items, 5, MENU_ID_RX_5, getRxName(5, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 5)]));
+  initMenuNodeItem(rxMenu->Items, 6, MENU_ID_RX_6, getRxName(6, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 6)]));
+  initMenuNodeItem(rxMenu->Items, 7, MENU_ID_RX_7, getRxName(7, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 7)]));
+  initMenuNodeItem(rxMenu->Items, 8, MENU_ID_RX_8, getRxName(8, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 8)]));
+  initMenuNodeItem(rxMenu->Items, 9, MENU_ID_RX_9, getRxName(9, &menu_rx_string[MENU_STR_RX_0_IDX + ((RX_NAME_MAX_LENGTH + 1) * 9)]));
   rxMenu->Prev = settingMenu;  // Link back to the previous menu node
   settingMenu->Items[1].Item = rxMenu;  // Link with the menu item in the previous menu node
 
@@ -213,22 +267,19 @@ void setupMenu() {
   initMenuNode(rxSettingTemplate, "", 4);
 
   itemLength = strlen(menu_rx_setting_0);
-  char menuRxSetting0[itemLength + 1];
-  memset(menuRxSetting0, 0, itemLength + 1);
-  getValueFromProgmem(menu_rx_setting_0, menuRxSetting0, itemLength);
-  initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, menuRxSetting0);
+  currentMenuStr = &menu_rx_setting_string[MENU_STR_RX_SETTING_0_IDX];
+  getValueFromProgmem(menu_rx_setting_0, currentMenuStr, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 0, MENU_ID_RX_SETTING_SELECT, currentMenuStr);
 
   itemLength = strlen(menu_rx_setting_1);
-  char menuRxSetting1[itemLength + 1];
-  memset(menuRxSetting1, 0, itemLength + 1);
-  getValueFromProgmem(menu_rx_setting_1, menuRxSetting1, itemLength);
-  initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, menuRxSetting1);
+  currentMenuStr = &menu_rx_setting_string[MENU_STR_RX_SETTING_1_IDX];
+  getValueFromProgmem(menu_rx_setting_1, currentMenuStr, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 1, MENU_ID_RX_SETTING_RENAME, currentMenuStr);
 
   itemLength = strlen(menu_rx_setting_2);
-  char menuRxSetting2[itemLength + 1];
-  memset(menuRxSetting2, 0, itemLength + 1);
-  getValueFromProgmem(menu_rx_setting_2, menuRxSetting2, itemLength);
-  initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, menuRxSetting2);
+  currentMenuStr = &menu_rx_setting_string[MENU_STR_RX_SETTING_2_IDX];
+  getValueFromProgmem(menu_rx_setting_2, currentMenuStr, itemLength);
+  initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, currentMenuStr);
 
   initMenuNodeItem(rxSettingTemplate->Items, 3, 0, "");
   rxSettingTemplate->Prev = rxMenu;  // Link back to the previous menu node
@@ -249,11 +300,11 @@ void setupMenu() {
   setPagination(0);
 }
 
-char* getRxName(uint8_t index)  {
+char* getRxName(uint8_t index, char* rxBuffer)  {
   RxConfig tempRxConfig = EEPROM_readRxConfig(index + 1);
-  strncpy(menu_rx[index], tempRxConfig.Name, RX_NAME_MAX_LENGTH);
-  menu_rx[index][RX_NAME_MAX_LENGTH] = '\0';
-  return menu_rx[index];
+  strncpy(rxBuffer, tempRxConfig.Name, RX_NAME_MAX_LENGTH);
+  rxBuffer[RX_NAME_MAX_LENGTH] = '\0';
+  return rxBuffer;
 }
 
 void setPagination(uint8_t scrollIndex) {
@@ -271,7 +322,13 @@ void initMenuNode(MenuNode* node, char* title, uint8_t itemCount) {
   node->ParentMenu = NULL;
   node->Prev = NULL;
   node->ExecFunc = NULL;
-  node->Items = (MenuNodeItem*)malloc(itemCount * sizeof(MenuNodeItem));
+  if (itemCount > 0)  {
+    node->Items = (MenuNodeItem*)malloc(itemCount * sizeof(MenuNodeItem));
+    memset(node->Items, 0, (itemCount * sizeof(MenuNodeItem)));
+  }
+  else  {
+    node->Items = NULL;
+  }
 }
 
 void initMenuNodeItem(MenuNodeItem* items, uint8_t index, uint8_t id, char* menu)  {
@@ -552,7 +609,100 @@ void softReset() {
 }
 
 void getValueFromProgmem(char* item, char* value, uint8_t len) {
+  // clear the string first. Assume len + 1 for the string
+  memset(value, 0, len + 1);
+  
   for (uint8_t i = 0; i < len; i++) {
     value[i] = pgm_read_byte_near(item + i);
   }
 }
+
+void Menu_stop() {
+
+#if defined(MEMORY_CHECK)
+  Serial.print("Menu_stop() before. Free Memory: ");
+  Serial.println(freeMemory());
+#endif
+
+  // free menuNodes
+  clearMenuNode(topMenu);
+  topMenu = NULL;
+  
+  if (rxSettingTemplate)  {
+    free(rxSettingTemplate->Items);
+    free(rxSettingTemplate);
+    rxSettingTemplate = NULL;
+  }
+
+  if (rxRenameTemplate) {
+    free(rxRenameTemplate);
+    rxRenameTemplate = NULL;
+  }
+
+  if (menu_top_string)  {
+    free(menu_top_string);
+    menu_top_string = NULL;
+  }
+  if (menu_setting_string)  {
+    free(menu_setting_string);
+    menu_setting_string = NULL;
+  }
+  if (menu_rx_string)  {
+    free(menu_rx_string);
+    menu_rx_string = NULL;
+  }
+  if (menu_rx_setting_string)  {
+    free(menu_rx_setting_string);
+    menu_rx_setting_string = NULL;
+  }
+
+  if (itemEdit.Value) {
+    free(itemEdit.Value);
+    itemEdit.Value = NULL;
+  }
+
+#if defined(MEMORY_CHECK)
+  Serial.print("Menu_stop() after. Free Memory: ");
+  Serial.println(freeMemory());
+#endif
+}
+
+void clearMenuNode(MenuNode* node)  {
+  MenuNode* temp;
+  uint8_t i, count, itemIndex;
+
+  while (node)  {
+    i = 0;
+    itemIndex = 255;
+    count = node->ItemCount;
+    while (i < count) {
+      if (node->Items[i].Item)  {
+        node = node->Items[i].Item;
+        count = node->ItemCount;
+        itemIndex = i;
+        i = 0;
+      }
+      else  {
+        i++;
+      }
+    }
+
+    free(node->Items);
+    node->Items = NULL;
+    node->ItemCount = 0;
+
+    if (node->Prev) {
+      temp = node->Prev;
+      if (itemIndex != 255) {
+        free(temp->Items[itemIndex].Item);
+        temp->Items[itemIndex].Item = NULL;
+      }
+      node = temp;
+    }
+    else  {
+      free(node);
+      node = NULL;
+    }
+  }
+}
+

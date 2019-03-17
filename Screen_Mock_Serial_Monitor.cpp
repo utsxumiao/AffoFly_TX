@@ -12,6 +12,9 @@
 static const uint32_t controlScreenRefreshInterval = 200000;  //5hz
 uint32_t previousControlScreenRefreshTime = 0;
 
+void Screen_init() {
+}
+
 void Screen_showWelcomeScreen(char* projectName, char* projectVersion) {
   Serial.println(F("================================"));
   Serial.println(F("=                              ="));

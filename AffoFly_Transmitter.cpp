@@ -114,6 +114,10 @@ void txModeInit() {
   Serial.print(F("TX MODE: "));
   Serial.println(TX_MODE);
 #endif
+
+  // deallocate all resource for menu
+  Menu_stop();
+
 #ifdef SHOW_MODE_SCREEN
   Screen_showModeScreen(TX_MODE);
   delay(1000);
