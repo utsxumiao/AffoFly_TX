@@ -67,14 +67,47 @@ void Screen_showModeScreen(uint8_t txMode) {
 }
 
 void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
-  u8g2.setCursor(0, 10);
-  u8g2.print(title);
-  u8g2.drawLine(0, 15, 128, 15);
+  // Title
+  u8g2.firstPage();
+  do {
+    u8g2.setCursor(0, 10);
+    u8g2.print(title);
+    u8g2.drawLine(0, 15, 128, 15);
   
+    // Items
+    if (displayFunc) {
+      uint8_t lineCount = 0;
+      displayFunc(&lineCount);
+    } else {
+      uint8_t menuItemStartX = 10;
+      uint8_t menuItemStartY = 27;
+      uint8_t lineGap = 12;
+      for (uint8_t i = 0; i < count; i++) {
+        if (i >= pagination.StartIndex && i <= pagination.EndIndex) {
+          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * i);
+          u8g2.print(items[i].Menu);
+        }
+      }
+      // current item indicator
+      u8g2.setCursor(0, menuItemStartY + lineGap * index);
+      u8g2.print(F("*"));
+    }
+  } while (u8g2.nextPage());
 }
 
 void Screen_showMenuRxRename(uint8_t *lineCount) {
+  u8g2.firstPage();
+  do {
+    u8g2.setCursor(0, 10);
+    u8g2.print(F("RX RENAMING"));
+    u8g2.drawLine(0, 15, 128, 15);
 
+    u8g2.setCursor(10, 27);
+    u8g2.print(itemEdit.Value);
+
+    uint8_t indicatorStartX = 6 * itemEdit.Index + 10;
+    u8g2.drawLine(indicatorStartX, 30, indicatorStartX + 5, 30);
+  } while (u8g2.nextPage());
 }
 
 void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
