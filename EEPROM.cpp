@@ -93,7 +93,7 @@ void EEPROM_loadDefaults() {
 #ifdef DEBUG
 void EEPROM_dumpAll() {
   Serial.println(F("EEPROM DATA:    "));
-  for (int i = 0 ; i < 300 ; i++) {
+  for (int i = 0 ; i < EEPROM_SETTING_LENGTH ; i++) {
     Serial.print("  ");
     Serial.print(i);
     Serial.print(F("=>"));
