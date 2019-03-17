@@ -37,6 +37,7 @@ void CPPM_outputData(ControlData controlData) {
   PPM[8] = controlData.Aux5;
   PPM[9] = controlData.Aux6;
   PPM[10] = controlData.Swd1;
+  PPM[11] = controlData.Swd2;
 #ifdef SHOW_RATE
   CPPM_COUNT++;
 #endif
