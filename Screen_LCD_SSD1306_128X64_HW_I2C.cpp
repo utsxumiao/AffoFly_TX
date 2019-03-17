@@ -102,11 +102,19 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
     u8g2.print(F("RX RENAMING"));
     u8g2.drawLine(0, 15, 128, 15);
 
-    u8g2.setCursor(10, 27);
-    u8g2.print(itemEdit.Value);
-
-    uint8_t indicatorStartX = 6 * itemEdit.Index + 10;
-    u8g2.drawLine(indicatorStartX, 30, indicatorStartX + 5, 30);
+    for (uint8_t i = 0; i < strlen(itemEdit.Value); i++) {
+      u8g2.setCursor(6 * i + 10, 27);
+      if (i == itemEdit.Index) {
+        u8g2.setFontMode(1);
+        u8g2.drawBox(6 * i + 10 - 1, 18, 7, 10);
+        u8g2.setDrawColor(2);
+        u8g2.print(itemEdit.Value[i]);
+        u8g2.setFontMode(0);
+        u8g2.setDrawColor(1);
+      } else {
+        u8g2.print(itemEdit.Value[i]);
+      }
+    }
   } while (u8g2.nextPage());
 }
 
