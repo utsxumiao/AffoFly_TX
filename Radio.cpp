@@ -5,6 +5,7 @@
 #include "EEPROM.h"
 #include "Bounce2.h"
 #include "Menu.h"
+#include "Buzzer.h"
 #include "AffoFly_Transmitter.h"
 #include <SPI.h>
 #include <nRF24L01.h>
@@ -141,24 +142,36 @@ void bindRx(uint8_t channel, uint32_t token) {
   printf_begin();
   radio.printDetails();
 #endif
+  const uint16_t radioSendInterval = 100000; // 10p/s
+  uint32_t previousRadioSendTime = 0;
+  
   bool bound = false;
   TxBindData txBindData;
   strcpy(txBindData.TxIdentifier, TX_IDENTIFIER);
   txBindData.Token = token;
+  BuzzerBeepPattern buzzerPattern = radioBinding;
+  Buzzer_start(buzzerPattern);
   while (!bound) {
-    bool txSent = radio.write(&txBindData, sizeof(txBindData));
-    if (txSent && radio.isAckPayloadAvailable()) {
-      RxBindData rxBindData;
-      radio.read(&rxBindData, sizeof(rxBindData));
-      if (rxBindData.RxIdentifier == TX_IDENTIFIER && rxBindData.Token == token) {
-        //update RX data in EEPROM
-        bound = true;
-        initMenuNodeItem(bindMenu->Items, 2, 0, "Bound!");
-        showMenu(bindMenu);
+    uint32_t currentTime  = micros();
+    Buzzer_beep(currentTime);
+    if (currentTime - previousRadioSendTime >= radioSendInterval) {
+      previousRadioSendTime = currentTime;
+      bool txSent = radio.write(&txBindData, sizeof(txBindData));
+      if (txSent && radio.isAckPayloadAvailable()) {
+        RxBindData rxBindData;
+        radio.read(&rxBindData, sizeof(rxBindData));
+        if (rxBindData.RxIdentifier == RX_IDENTIFIER && rxBindData.Token == token) {
+          selectedRxConfig.RadioChannel = channel;
+          selectedRxConfig.Token = token;
+          EEPROM_writeRxConfig(selectedRxConfig);
+          bound = true;
+          initMenuNodeItem(bindMenu->Items, 2, 0, "Bound!");
+          showMenu(bindMenu);
+        }
       }
     }
-    delayMicroseconds(20000); //Place some delay to avoid flodding the channel
   }
+  Buzzer_stop();
 }
 
 #endif

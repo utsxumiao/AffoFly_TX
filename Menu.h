@@ -35,6 +35,7 @@
 
 #define ITEM_EDIT_NOT_SELECTED      100
 
+extern RxConfig selectedRxConfig;
 
 void Menu_init();
 void Menu_initButtons();

@@ -22,7 +22,7 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
       setBuzzerValues(100000, 100000, 0, 0, 0, 0, 100);
       break;
     case radioBinding:
-      setBuzzerValues(50000, 50000, 50000, 50000, 50000, 1000000, 100);
+      setBuzzerValues(50000, 50000, 50000, 50000, 50000, 1000000, 65000);
       break;
     default:
       setBuzzerValues(0, 0, 0, 0, 0, 0, 0);
@@ -30,7 +30,12 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
   }
 }
 
-void setBuzzerValues(uint32_t firstBeepDuration, uint32_t firstPauseDuration, uint32_t secondBeepDuration, uint32_t secondPauseDuration, uint32_t thirdBeepDuration, uint32_t thirdPauseDuration, uint8_t repeats) {
+void Buzzer_stop() {
+  buzzerBeepRepeats = 0;
+  buzzerBeepPatternIndex = 0;
+}
+
+void setBuzzerValues(uint32_t firstBeepDuration, uint32_t firstPauseDuration, uint32_t secondBeepDuration, uint32_t secondPauseDuration, uint32_t thirdBeepDuration, uint32_t thirdPauseDuration, uint16_t repeats) {
   buzzerBeepPattern[0] = firstBeepDuration;
   buzzerBeepPattern[1] = firstPauseDuration;
   buzzerBeepPattern[2] = secondBeepDuration;
