@@ -8,7 +8,9 @@
 #include "Buzzer.h"
 #include "Menu.h"
 #include "Screen.h"
-#include "MemoryFree.h"
+#if defined(CHECK_FREE_MEMORY)
+  #include "MemoryFree.h"
+#endif
 
 #define MENU_STR_TOP_TITLE_IDX          0
 #define MENU_STR_TOP_0_IDX              5
@@ -74,7 +76,7 @@ char *menu_rx_setting_string = NULL;
 
 
 void Menu_init() {
-#if defined(DEBUG) && defined(MEMORY_CHECK)
+#if defined(CHECK_FREE_MEMORY)
   Serial.print("Menu_init() before. Free Memory: ");
   Serial.println(freeMemory());
 #endif
@@ -83,7 +85,7 @@ void Menu_init() {
   setupMenu();
   showMenu(currentMenu);
 
-#if defined(DEBUG) && defined(MEMORY_CHECK)
+#if defined(CHECK_FREE_MEMORY)
   Serial.print("Menu_init() after. Free Memory: ");
   Serial.println(freeMemory());
 #endif
@@ -627,7 +629,7 @@ void getValueFromProgmem(char* item, char* value, uint8_t len) {
 
 void Menu_stop() {
 
-#if defined(DEBUG) && defined(MEMORY_CHECK)
+#if defined(CHECK_FREE_MEMORY)
   Serial.print("Menu_stop() before. Free Memory: ");
   Serial.println(freeMemory());
 #endif
@@ -669,7 +671,7 @@ void Menu_stop() {
     itemEdit.Value = NULL;
   }
 
-#if defined(DEBUG) && defined(MEMORY_CHECK)
+#if defined(CHECK_FREE_MEMORY)
   Serial.print("Menu_stop() after. Free Memory: ");
   Serial.println(freeMemory());
 #endif
