@@ -81,10 +81,12 @@ void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t in
       uint8_t menuItemStartX = 10;
       uint8_t menuItemStartY = 27;
       uint8_t lineGap = 12;
+      uint8_t j = 0;
       for (uint8_t i = 0; i < count; i++) {
         if (i >= pagination.StartIndex && i <= pagination.EndIndex) {
-          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * i);
+          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * j);
           u8g2.print(items[i].Menu);
+          j++;
         }
       }
       // current item indicator
