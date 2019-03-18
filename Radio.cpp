@@ -4,13 +4,14 @@
 #include "def.h"
 #include "EEPROM.h"
 #include "Bounce2.h"
-#include "Menu.h"
 #include "Buzzer.h"
 #include "AffoFly_Transmitter.h"
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 #include "printf.h"
+#include "Menu.h"
+#include "Screen.h"
 #include "Radio.h"
 
 uint32_t previousRadioSendTime = 0;
@@ -24,7 +25,6 @@ static const uint16_t radioSendInterval = 5000; // 200p/s
 
 RF24 radio(NRF_CE_PIN, NRF_CSN_PIN);
 uint8_t radioPaLevel = RF24_PA_MAX;
-MenuNode* bindMenu = (MenuNode*)malloc(sizeof(MenuNode));
 
 #ifdef SHOW_RATE
 uint16_t RADIO_COUNT;
@@ -79,21 +79,13 @@ void Radio_bind() {
   radio.startListening();
   radio.stopListening();
 
-  initMenuNode(bindMenu, "BIND", 3);
-  bindMenu->Index = -1;
-  initMenuNodeItem(bindMenu->Items, 0, 0, "Channel: ...");
-  initMenuNodeItem(bindMenu->Items, 1, 0, "");
-  initMenuNodeItem(bindMenu->Items, 2, 0, "");
-  showMenu(bindMenu);
+  Screen_showRadioBindingScreen(0, false, false);
   uint8_t channel = findChannel();
-  char strChannel[4];
-  initMenuNodeItem(bindMenu->Items, 0, 0, strcat("Channel: ", itoa(channel, strChannel, 10)));
-  showMenu(bindMenu);
+  Screen_showRadioBindingScreen(channel, false, false);
   uint32_t token = generateToken();
-  initMenuNodeItem(bindMenu->Items, 1, 0, "Token ready.");
-  initMenuNodeItem(bindMenu->Items, 2, 0, "Waiting RX...");
-  showMenu(bindMenu);
+  Screen_showRadioBindingScreen(channel, true, false);
   bindRx(channel, token);
+  Screen_showRadioBindingScreen(channel, true, true);
 }
 
 uint8_t findChannel() {
@@ -138,7 +130,7 @@ void bindRx(uint8_t channel, uint32_t token) {
   radio.setDataRate(RF24_250KBPS);
   radio.openWritingPipe(RADIO_PIPE);
 #ifdef DEBUG
-  Serial.print(F("CHANNEL          = ")); Serial.println(channel);
+  Serial.print(F("Channel: ")); Serial.println(channel);
   printf_begin();
   radio.printDetails();
 #endif
@@ -165,8 +157,6 @@ void bindRx(uint8_t channel, uint32_t token) {
           selectedRxConfig.Token = token;
           EEPROM_writeRxConfig(selectedRxConfig);
           bound = true;
-          initMenuNodeItem(bindMenu->Items, 2, 0, "Bound!");
-          showMenu(bindMenu);
         }
       }
     }

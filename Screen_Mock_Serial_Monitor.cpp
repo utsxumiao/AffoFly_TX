@@ -152,6 +152,68 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
 //}
 
 void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
+  
+}
+
+void Screen_showRadioBindingScreen(uint8_t channel, bool tokenIsReady, bool bound) {
+  for (uint8_t i = 0; i < 10; i++) {
+    Serial.println();
+  }
+  Serial.println(F("================================"));
+
+  Serial.print(F("= ")); Serial.print(F("RX BIND"));
+  for (uint8_t i = 0; i < SCREEN_WIDTH - 7 - 1; i++) {
+    Serial.print(F(" "));
+  }
+  Serial.println(F("="));
+  Serial.println(F("=------------------------------="));
+
+  Serial.print(F("= Channel: "));
+  if (channel) {
+    Serial.print(channel);
+  } else {
+    Serial.print(F("..."));
+  }
+  for (uint8_t i = 0; i < SCREEN_WIDTH - 12 - 1; i++) {
+    Serial.print(F(" "));
+  }
+  Serial.println("=");
+
+  Serial.print("= ");
+  if (tokenIsReady) {
+    Serial.print(F("Token ready"));
+    for (uint8_t i = 0; i < SCREEN_WIDTH - 11 - 1; i++) {
+      Serial.print(F(" "));
+    }
+  } else {
+    for (uint8_t i = 0; i < SCREEN_WIDTH - 1; i++) {
+      Serial.print(F(" "));
+    }
+  }
+  Serial.println("=");
+
+  if (channel && tokenIsReady) {
+    Serial.print("= ");
+    if (bound) {
+      Serial.println(F("RX Bound!"));
+      for (uint8_t i = 0; i < SCREEN_WIDTH - 9 - 1; i++) {
+        Serial.print(F(" "));
+      }
+    } else {
+      Serial.print(F("Waiting..."));
+      for (uint8_t i = 0; i < SCREEN_WIDTH - 10 - 1; i++) {
+        Serial.print(F(" "));
+      }
+    }
+    Serial.println("=");
+  } else {
+    Serial.println(F("=                              ="));
+  }
+  
+  for (uint8_t i = 0; i < SCREEN_LINES - 3 - 2; i++) {
+    Serial.println(F("=                              ="));
+  }
+  Serial.println(F("================================"));
 }
 
 #endif

@@ -260,4 +260,8 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
   }
 }
 
+void Screen_showRadioBindingScreen(uint8_t channel, bool tokenIsReady, bool bound) {
+  
+}
+
 #endif
