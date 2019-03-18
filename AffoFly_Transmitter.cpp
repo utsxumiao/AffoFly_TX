@@ -58,7 +58,6 @@ uint16_t buttonCheckCount = 0;
 uint16_t dataGetCount = 0;
 
 RateData rateData;
-bool controlScreenForceRefresh = false;
 #endif
 
 void setup() {

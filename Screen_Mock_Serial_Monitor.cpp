@@ -11,6 +11,7 @@
 
 static const uint32_t controlScreenRefreshInterval = 200000;  //5hz
 uint32_t previousControlScreenRefreshTime = 0;
+bool controlScreenForceRefresh = false;
 
 void Screen_init() {
 }

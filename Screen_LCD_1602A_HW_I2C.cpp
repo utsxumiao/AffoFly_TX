@@ -8,7 +8,7 @@
 
 #ifdef SCREEN_LCD_1602A_HW_I2C
 
-controlScreenForceRefresh = false;
+bool controlScreenForceRefresh = false;
 
 void Screen_showWelcomeScreen(char* projectName, char* projectVersion) {}
 void Screen_showModeScreen(uint8_t txMode) {}
