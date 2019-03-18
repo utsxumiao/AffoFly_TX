@@ -8,9 +8,7 @@
 #include "Buzzer.h"
 #include "Menu.h"
 #include "Screen.h"
-#if defined(MEMORY_CHECK)
-  #include "MemoryFree.h"
-#endif
+#include "MemoryFree.h"
 
 #define MENU_STR_TOP_TITLE_IDX          0
 #define MENU_STR_TOP_0_IDX              5
