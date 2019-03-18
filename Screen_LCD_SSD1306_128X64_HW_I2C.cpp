@@ -66,6 +66,10 @@ void Screen_showModeScreen(uint8_t txMode) {
 }
 
 void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
+  Serial.print("count: ");  Serial.print(count);  Serial.print("  "); 
+  Serial.print("index: ");  Serial.print(index);  Serial.print("  ");  
+  Serial.print("PageStartIndex: "); Serial.print(pagination.StartIndex);  Serial.print("  ");
+  Serial.print("PageEndIndex: ");   Serial.print(pagination.EndIndex);    Serial.println();
   // Title
   u8g2.firstPage();
   do {
@@ -82,16 +86,16 @@ void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t in
       uint8_t menuItemStartY = 27;
       uint8_t lineGap = 12;
       uint8_t j = 0;
-      for (uint8_t i = 0; i < count; i++) {
-        if (i >= pagination.StartIndex && i <= pagination.EndIndex) {
-          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * j);
-          u8g2.print(items[i].Menu);
-          j++;
+      for (uint8_t i = pagination.StartIndex; i <= pagination.EndIndex; i++) {
+        Serial.print("i: ");  Serial.print(i);  Serial.println();
+        if (i == index) {
+            u8g2.setCursor(0, menuItemStartY + lineGap * j);
+            u8g2.print(F("*"));
         }
+        u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * j);
+        u8g2.print(items[i].Menu);
+        j++;
       }
-      // current item indicator
-      u8g2.setCursor(0, menuItemStartY + lineGap * index);
-      u8g2.print(F("*"));
     }
   } while (u8g2.nextPage());
 }

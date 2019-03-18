@@ -58,7 +58,7 @@
 /**************************************************************************************/
 /***************             General Configurations                ********************/
 /**************************************************************************************/
-//#define DEBUG
+#define DEBUG
 //#define CHECK_FREE_MEMORY
 #define PROJECT_NAME        "AffoFly TX"
 #define PROJECT_VERSION     "v0.020"
