@@ -132,24 +132,24 @@ void Screen_showMenuRxRename(uint8_t *lineCount) {
   *lineCount = 2;
 }
 
-void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute) {
-  if (forceExecute || currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
-    previousControlScreenRefreshTime = currentTime;
-    Serial.print("RX Name: ");  Serial.print(CURRENT_RX_CONFIG.Name); Serial.print("    ");
-    Serial.print("TX Mode: ");  Serial.print(TX_MODE); Serial.print("    ");
-    Serial.print("Battery Voltage: ");  Serial.print(BATTERY_VOLTAGE); Serial.print("    ");
-    Serial.print("Low Voltage: ");  Serial.print(LOW_VOLTAGE); Serial.print("    ");
-    Serial.println();
-#ifdef SHOW_RATE
-    Serial.print("Loop Rate: ");  Serial.print(rateData.LoopRate); Serial.print("   ");
-    Serial.print("Button Check Rate: ");  Serial.print(rateData.ButtonCheckRate); Serial.print("   ");
-    Serial.print("Data Get Rate: ");  Serial.print(rateData.DataGetRate); Serial.print("   ");
-    Serial.print("Radio Rate: ");  Serial.print(rateData.RadioRate); Serial.print("   ");
-    Serial.print("CPPM Rate: ");  Serial.print(rateData.CPPMRate); Serial.print("   ");
-    Serial.println();
-#endif
-  }
-}
+//void Screen_showControlScreen(ControlData controlData, RateData rateData, uint32_t currentTime, bool forceExecute) {
+//  if (forceExecute || currentTime - previousControlScreenRefreshTime >= controlScreenRefreshInterval) {
+//    previousControlScreenRefreshTime = currentTime;
+//    Serial.print("RX Name: ");  Serial.print(CURRENT_RX_CONFIG.Name); Serial.print("    ");
+//    Serial.print("TX Mode: ");  Serial.print(TX_MODE); Serial.print("    ");
+//    Serial.print("Battery Voltage: ");  Serial.print(BATTERY_VOLTAGE); Serial.print("    ");
+//    Serial.print("Low Voltage: ");  Serial.print(LOW_VOLTAGE); Serial.print("    ");
+//    Serial.println();
+//#ifdef SHOW_RATE
+//    Serial.print("Loop Rate: ");  Serial.print(rateData.LoopRate); Serial.print("   ");
+//    Serial.print("Button Check Rate: ");  Serial.print(rateData.ButtonCheckRate); Serial.print("   ");
+//    Serial.print("Data Get Rate: ");  Serial.print(rateData.DataGetRate); Serial.print("   ");
+//    Serial.print("Radio Rate: ");  Serial.print(rateData.RadioRate); Serial.print("   ");
+//    Serial.print("CPPM Rate: ");  Serial.print(rateData.CPPMRate); Serial.print("   ");
+//    Serial.println();
+//#endif
+//  }
+//}
 
 void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute) {
 }

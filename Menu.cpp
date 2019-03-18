@@ -451,12 +451,10 @@ void selectMenu() {
       MenuNodeItem* selectedNodeItem = getCurrentMenuNodeItem(currentMenu);
       uint8_t menuId = 0;
       char* title;
-      Serial.print("CurrentMenu: ");  Serial.println(currentMenu->Title);
       if (selectedNodeItem) {
         temp = selectedNodeItem->Item;
         menuId = selectedNodeItem->Id;
         title = selectedNodeItem->Menu;
-        Serial.print("SelectedNodeItem: "); Serial.println(selectedNodeItem->Menu);
       }
 
       if (temp) {
@@ -717,4 +715,3 @@ void clearMenuNode(MenuNode* node)  {
     }
   }
 }
-
