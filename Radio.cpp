@@ -14,7 +14,7 @@
 #include "Radio.h"
 
 uint32_t previousRadioSendTime = 0;
-static const uint16_t radioSendInterval = 10000; // 100p/s
+static const uint16_t radioSendInterval = 5000; // 200p/s
 
 
 /**************************************************************************************/
@@ -142,7 +142,7 @@ void bindRx(uint8_t channel, uint32_t token) {
   printf_begin();
   radio.printDetails();
 #endif
-  const uint16_t radioSendInterval = 100000; // 10p/s
+  const uint16_t radioSendInterval = 10000; // 100p/s
   uint32_t previousRadioSendTime = 0;
   
   bool bound = false;
