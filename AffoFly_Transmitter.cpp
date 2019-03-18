@@ -375,11 +375,9 @@ void Control_checkButtons(uint32_t currentTime) {
 
         BuzzerBeepPattern buzzerPattern = buttonPress;
         Buzzer_start(buzzerPattern);
-
-        if (controlScreenForceRefresh) {
-          Control_getData(currentTime, true);
-          Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, true);
-        }
+        Control_getData(currentTime, true);
+        Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, true);
+        
 #ifdef DEBUG
         Serial.print(F("Button pressed, index: "));
         Serial.print(i);

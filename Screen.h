@@ -9,7 +9,6 @@ void Screen_showMenuRxRename(uint8_t *lineCount);
 void Screen_showControlScreen(ControlData controlData, RateData rateData, bool trimming, uint8_t trimStickIndex, uint32_t currentTime, bool forceExecute);
 void Screen_showRadioBindingScreen(uint8_t channel, bool tokenIsReady, bool bound);
 
-extern bool controlScreenForceRefresh;
 extern MenuItemEdit itemEdit;
 extern MenuPagination pagination;
 
