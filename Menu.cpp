@@ -33,8 +33,10 @@
 #define MENU_STR_RX_SETTING_0_IDX       0
 #define MENU_STR_RX_SETTING_1_IDX       7
 #define MENU_STR_RX_SETTING_2_IDX       14
-#define MENU_STR_RX_SETTING_LENGTH      19
+#define MENU_STR_RX_SETTING_CHAN_IDX    19
+#define MENU_STR_RX_SETTING_LENGTH      32
 
+#define MENU_CHANNEL_DISPLAY_LENGTH     12
 
 // Top menu items
 const char menu_top_title[] PROGMEM = "MODE";
@@ -274,7 +276,11 @@ void setupMenu() {
   getValueFromProgmem(menu_rx_setting_2, currentMenuStr, itemLength);
   initMenuNodeItem(rxSettingTemplate->Items, 2, MENU_ID_RX_SETTING_BIND, currentMenuStr);
 
-  initMenuNodeItem(rxSettingTemplate->Items, 3, 0, "");
+  itemLength = MENU_CHANNEL_DISPLAY_LENGTH;
+  currentMenuStr = &menu_rx_setting_string[MENU_STR_RX_SETTING_CHAN_IDX];
+  memset(currentMenuStr, 0, (itemLength + 1));
+  initMenuNodeItem(rxSettingTemplate->Items, 3, 0, currentMenuStr);
+
   rxSettingTemplate->Prev = rxMenu;  // Link back to the previous menu node
 
   // RX Rename template ---------------------
@@ -489,13 +495,21 @@ void selectMenu() {
   }
 }
 
+void getRxChannelStr(uint8_t channel)  {
+  char *rxChannelStr = &menu_rx_setting_string[MENU_STR_RX_SETTING_CHAN_IDX];
+  char strChannel[4];
+  memset(rxChannelStr, 0, MENU_CHANNEL_DISPLAY_LENGTH + 1);
+  itoa(channel, strChannel, 10);
+  strcpy(rxChannelStr, "Channel: ");
+  strcat(rxChannelStr, strChannel);
+}
+
 void handleMenu(uint8_t menuId, char* title) {
   if (menuId >= MENU_ID_RX_0 && menuId <= MENU_ID_RX_9) { // Specific RX has been selected
     selectedRxConfig = EEPROM_readRxConfig(menuId - MENU_ID_RX_0 + 1);
     rxSettingTemplate->ParentId = menuId;
     rxSettingTemplate->ParentMenu = title;
-    char strChannel[4];
-    initMenuNodeItem(rxSettingTemplate->Items, 3, 0, strcat("Channel: ", itoa(selectedRxConfig.RadioChannel, strChannel, 10)));
+    getRxChannelStr(selectedRxConfig.RadioChannel);
     currentMenu = rxSettingTemplate;
     currentMenu->Index = 0;  // resetting user's selection in the previous visit to the menu
     currentMenu->ScrollIndex = 0;
