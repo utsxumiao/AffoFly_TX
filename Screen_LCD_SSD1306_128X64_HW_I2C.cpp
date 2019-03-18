@@ -66,17 +66,13 @@ void Screen_showModeScreen(uint8_t txMode) {
 }
 
 void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t index, void (*displayFunc)(uint8_t*)) {
-  Serial.print("count: ");  Serial.print(count);  Serial.print("  "); 
-  Serial.print("index: ");  Serial.print(index);  Serial.print("  ");  
-  Serial.print("PageStartIndex: "); Serial.print(pagination.StartIndex);  Serial.print("  ");
-  Serial.print("PageEndIndex: ");   Serial.print(pagination.EndIndex);    Serial.println();
   // Title
   u8g2.firstPage();
   do {
     u8g2.setCursor(0, 10);
     u8g2.print(title);
     u8g2.drawLine(0, 15, 128, 15);
-  
+
     // Items
     if (displayFunc) {
       uint8_t lineCount = 0;
@@ -87,13 +83,14 @@ void Screen_showMenu(char* title, MenuNodeItem* items, uint8_t count, uint8_t in
       uint8_t lineGap = 12;
       uint8_t j = 0;
       for (uint8_t i = pagination.StartIndex; i <= pagination.EndIndex; i++) {
-        Serial.print("i: ");  Serial.print(i);  Serial.println();
         if (i == index) {
-            u8g2.setCursor(0, menuItemStartY + lineGap * j);
-            u8g2.print(F("*"));
+          u8g2.setCursor(0, menuItemStartY + lineGap * j);
+          u8g2.print(F("*"));
         }
-        u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * j);
-        u8g2.print(items[i].Menu);
+        if (count > j) {
+          u8g2.setCursor(menuItemStartX, menuItemStartY + lineGap * j);
+          u8g2.print(items[i].Menu);
+        }
         j++;
       }
     }
@@ -158,7 +155,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       }
       u8g2.drawLine(0, 15, 128, 15);
 
-      // Trimming 
+      // Trimming
       // YAW
       u8g2.drawLine(5, 61, 49, 61);
       u8g2.drawLine(27, 59, 27, 63);
@@ -203,35 +200,35 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       u8g2.setCursor(0, channelY);
       u8g2.print(F("A1"));
       u8g2.drawFrame(13, channelY - 8, 40, 8);
-      u8g2.drawBox(13, channelY - 8, (controlData.Aux1 - 1000)/rcValuePerPixel, 8);
-      
+      u8g2.drawBox(13, channelY - 8, (controlData.Aux1 - 1000) / rcValuePerPixel, 8);
+
       u8g2.setCursor(117, channelY);
       u8g2.print(F("A2"));
       u8g2.drawFrame(75, channelY - 8, 40, 8);
-      u8g2.drawBox(75, channelY - 8, (controlData.Aux2 - 1000)/rcValuePerPixel, 8);
+      u8g2.drawBox(75, channelY - 8, (controlData.Aux2 - 1000) / rcValuePerPixel, 8);
 
       channelY += channelYGap;
       u8g2.setCursor(0, channelY);
       u8g2.print(F("A3"));
       u8g2.drawFrame(13, channelY - 8, 40, 8);
-      u8g2.drawBox(13, channelY - 8, (controlData.Aux3 - 1000)/rcValuePerPixel, 8);
-      
+      u8g2.drawBox(13, channelY - 8, (controlData.Aux3 - 1000) / rcValuePerPixel, 8);
+
       u8g2.setCursor(117, channelY);
       u8g2.print(F("A4"));
       u8g2.drawFrame(75, channelY - 8, 40, 8);
-      u8g2.drawBox(75, channelY - 8, (controlData.Aux4 - 1000)/rcValuePerPixel, 8);
+      u8g2.drawBox(75, channelY - 8, (controlData.Aux4 - 1000) / rcValuePerPixel, 8);
 
 #ifdef EXTEND_CHANNEL
       channelY += channelYGap;
       u8g2.setCursor(0, channelY);
       u8g2.print(F("A5"));
       u8g2.drawFrame(13, channelY - 8, 40, 8);
-      u8g2.drawBox(13, channelY - 8, (controlData.Aux5 - 1000)/rcValuePerPixel, 8);
-      
+      u8g2.drawBox(13, channelY - 8, (controlData.Aux5 - 1000) / rcValuePerPixel, 8);
+
       u8g2.setCursor(117, channelY);
       u8g2.print(F("A6"));
       u8g2.drawFrame(75, channelY - 8, 40, 8);
-      u8g2.drawBox(75, channelY - 8, (controlData.Aux6 - 1000)/rcValuePerPixel, 8);
+      u8g2.drawBox(75, channelY - 8, (controlData.Aux6 - 1000) / rcValuePerPixel, 8);
 #endif
 
       channelY += channelYGap;
@@ -239,7 +236,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       u8g2.setCursor(0, channelY);
       u8g2.print(F("S1"));
       u8g2.drawFrame(13, channelY - 8, 40, 8);
-      u8g2.drawBox(13, channelY - 8, (controlData.Swd1 - 1000)/rcValuePerPixel, 8);
+      u8g2.drawBox(13, channelY - 8, (controlData.Swd1 - 1000) / rcValuePerPixel, 8);
 #else
 #ifdef SHOW_RATE
       u8g2.setCursor(0, channelY);
@@ -252,7 +249,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       u8g2.setCursor(117, channelY);
       u8g2.print(F("S2"));
       u8g2.drawFrame(75, channelY - 8, 40, 8);
-      u8g2.drawBox(75, channelY - 8, (controlData.Swd2 - 1000)/rcValuePerPixel, 8);
+      u8g2.drawBox(75, channelY - 8, (controlData.Swd2 - 1000) / rcValuePerPixel, 8);
 #else
 #ifdef SHOW_RATE
       u8g2.setCursor(75, channelY);
@@ -266,7 +263,34 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
 }
 
 void Screen_showRadioBindingScreen(uint8_t channel, bool tokenIsReady, bool bound) {
-  
+  u8g2.firstPage();
+  do {
+    u8g2.setCursor(0, 10);
+    u8g2.print(F("RX BIND"));
+    u8g2.drawLine(0, 15, 128, 15);
+
+    u8g2.setCursor(0, 27);
+    if (channel != 0) {
+      u8g2.print(F("Channel: "));
+      u8g2.setCursor(6 * 9 - 1, 27);
+      u8g2.print(channel);
+    } else {
+      u8g2.print(F("Analyzing channel..."));
+    }
+
+
+    if (tokenIsReady) {
+      u8g2.setCursor(0, 39);
+      u8g2.print(F("Token is ready."));
+      u8g2.setCursor(0, 51);
+      if (bound) {
+        u8g2.print(F("RX Bound!"));
+      } else {
+        u8g2.print(F("Waiting for RX..."));
+      }
+    }
+
+  } while (u8g2.nextPage());
 }
 
 #endif
