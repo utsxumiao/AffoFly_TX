@@ -6,7 +6,7 @@
 
 #ifdef BUZZER
 uint32_t buzzerBeepPattern[6] = {0, 0, 0, 0, 0, 0};
-uint8_t buzzerBeepRepeats = 0;
+uint16_t buzzerBeepRepeats = 0;
 uint8_t buzzerBeepPatternIndex = 0;
 uint32_t beepingTime = 0;
 
@@ -22,7 +22,7 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
       setBuzzerValues(100000, 100000, 0, 0, 0, 0, 100);
       break;
     case radioBinding:
-      setBuzzerValues(50000, 50000, 50000, 50000, 50000, 1000000, 65000);
+      setBuzzerValues(50000, 50000, 50000, 50000, 50000, 50000, 65000);
       break;
     default:
       setBuzzerValues(0, 0, 0, 0, 0, 0, 0);
@@ -57,13 +57,24 @@ void Buzzer_beep(uint32_t currentTime) {
         digitalWrite(BUZZER_PIN, LOW);
         buzzerBeepPatternIndex = 0;
         buzzerBeepRepeats--;
+#ifdef DEBUG
+        Serial.print(F("Found item with value 0, quite current repeat. Repeats: "));
+        Serial.println(buzzerBeepRepeats);
+#endif
       } else {
         digitalWrite(BUZZER_PIN, buzzerBeepPatternIndex % 2 == 0 ? HIGH : LOW);
         beepingTime += buzzerBeepPattern[buzzerBeepPatternIndex];
         buzzerBeepPatternIndex++;
+#ifdef DEBUG
+        Serial.print(buzzerBeepPatternIndex % 2 == 0 ? "beep" : "-");
+#endif
         if (buzzerBeepPatternIndex > 5) {
           buzzerBeepPatternIndex = 0;
           buzzerBeepRepeats--;
+#ifdef DEBUG
+        Serial.print("Repeats: ");
+        Serial.println(buzzerBeepRepeats);
+#endif
         }
       }
     }

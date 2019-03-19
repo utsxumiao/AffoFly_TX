@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include <EEPROM.h>
 #include "types.h"
 #include "config.h"
 #include "def.h"
@@ -61,7 +60,7 @@ RateData rateData;
 #endif
 
 void setup() {
-#if defined(DEBUG) || defined(SCREEN_SERIAL_MONITOR)
+#if defined(DEBUG) || defined(SCREEN_MOCK_SERIAL_MONITOR) || defined(CHECK_FREE_MEMORY)
   Serial.begin(115200);
 #endif
   EEPROM_ensureValid();

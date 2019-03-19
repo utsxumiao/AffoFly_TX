@@ -7,7 +7,7 @@
 #include "AffoFly_Transmitter.h"
 #include "Screen.h"
 
-#ifdef SCREEN_SERIAL_MONITOR
+#ifdef SCREEN_MOCK_SERIAL_MONITOR
 
 static const uint32_t controlScreenRefreshInterval = 200000;  //5hz
 uint32_t previousControlScreenRefreshTime = 0;

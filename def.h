@@ -58,7 +58,7 @@
 /**************************************************************************************/
 /***************             General Configurations                ********************/
 /**************************************************************************************/
-#define DEBUG
+//#define DEBUG
 //#define CHECK_FREE_MEMORY
 #define PROJECT_NAME        "AffoFly TX"
 #define PROJECT_VERSION     "v0.020"
@@ -126,7 +126,7 @@
   #define SCREEN_MENU_HEADER_ROWS   0
   #define LINE_ITEM_MAX_LEN         12
 
-#elif defined(SCREEN_SERIAL_MONITOR)
+#elif defined(SCREEN_MOCK_SERIAL_MONITOR)
   #define SCREEN_WIDTH              30
   #define SCREEN_LINES              8
   #define SCREEN_MENU_LINES         8

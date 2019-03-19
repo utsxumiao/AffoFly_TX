@@ -74,7 +74,7 @@
 /************************************************************************************/
 //#define SCREEN_LCD_1602A_HW_I2C
 #define SCREEN_LCD_SSD1306_128X64_HW_I2C
-//#define SCREEN_SERIAL_MONITOR
+//#define SCREEN_MOCK_SERIAL_MONITOR
 
 //#define SHOW_WELCOME_SCREEN
 #define SHOW_MODE_SCREEN
