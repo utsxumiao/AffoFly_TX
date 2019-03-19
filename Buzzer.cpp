@@ -65,9 +65,6 @@ void Buzzer_beep(uint32_t currentTime) {
         digitalWrite(BUZZER_PIN, buzzerBeepPatternIndex % 2 == 0 ? HIGH : LOW);
         beepingTime += buzzerBeepPattern[buzzerBeepPatternIndex];
         buzzerBeepPatternIndex++;
-#ifdef DEBUG
-        Serial.print(buzzerBeepPatternIndex % 2 == 0 ? "beep" : "-");
-#endif
         if (buzzerBeepPatternIndex > 5) {
           buzzerBeepPatternIndex = 0;
           buzzerBeepRepeats--;
