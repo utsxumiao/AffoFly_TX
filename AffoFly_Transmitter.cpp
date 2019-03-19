@@ -4,6 +4,7 @@
 #include "def.h"
 #include "Bounce2.h"
 #include "AffoFly_Transmitter.h"
+#include "printf.h"
 #include "Battery.h"
 #include "Buzzer.h"
 #include "CPPM.h"
@@ -62,6 +63,7 @@ RateData rateData;
 void setup() {
 #if defined(DEBUG) || defined(SCREEN_MOCK_SERIAL_MONITOR) || defined(CHECK_FREE_MEMORY)
   Serial.begin(115200);
+  printf_begin(); // printf and sprintf prints using Serial.write()
 #endif
   EEPROM_ensureValid();
 #ifdef DEBUG

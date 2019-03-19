@@ -9,7 +9,6 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-#include "printf.h"
 #include "Menu.h"
 #include "Screen.h"
 #include "Radio.h"
@@ -41,7 +40,6 @@ void Radio_init() {
   radio.stopListening();
 #ifdef DEBUG
   Serial.print(F("CHANNEL          = ")); Serial.println(CURRENT_RX_CONFIG.RadioChannel);
-  printf_begin();
   radio.printDetails();
 #endif
 }
@@ -131,7 +129,6 @@ void bindRx(uint8_t channel, uint32_t token) {
   radio.openWritingPipe(RADIO_PIPE);
 #ifdef DEBUG
   Serial.print(F("Channel: ")); Serial.println(channel);
-  printf_begin();
   radio.printDetails();
 #endif
   const uint16_t radioSendInterval = 10000; // 100p/s
