@@ -31,8 +31,7 @@ void Buzzer_start(BuzzerBeepPattern pattern) {
 }
 
 void Buzzer_stop() {
-  buzzerBeepRepeats = 0;
-  buzzerBeepPatternIndex = 0;
+  setBuzzerValues(0, 0, 0, 0, 0, 0, 1);
 }
 
 void setBuzzerValues(uint32_t firstBeepDuration, uint32_t firstPauseDuration, uint32_t secondBeepDuration, uint32_t secondPauseDuration, uint32_t thirdBeepDuration, uint32_t thirdPauseDuration, uint16_t repeats) {
@@ -68,10 +67,10 @@ void Buzzer_beep(uint32_t currentTime) {
         if (buzzerBeepPatternIndex > 5) {
           buzzerBeepPatternIndex = 0;
           buzzerBeepRepeats--;
-#ifdef DEBUG
-        Serial.print("Repeats: ");
-        Serial.println(buzzerBeepRepeats);
-#endif
+//#ifdef DEBUG
+//        Serial.print("Repeats: ");
+//        Serial.println(buzzerBeepRepeats);
+//#endif
         }
       }
     }
