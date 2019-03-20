@@ -23,7 +23,6 @@ static const uint16_t radioSendInterval = 5000; // 200p/s
 #ifdef NRF24
 
 RF24 radio(NRF_CE_PIN, NRF_CSN_PIN);
-uint8_t radioPaLevel = RF24_PA_MAX;
 
 #ifdef SHOW_RATE
 uint16_t RADIO_COUNT;
@@ -31,11 +30,11 @@ uint16_t RADIO_COUNT;
 
 void Radio_init() {
   radio.begin();
-  radio.setPALevel(radioPaLevel);
+  radio.setPALevel(RF24_PA_MAX);
   radio.setAutoAck(false);
   radio.setChannel(CURRENT_RX_CONFIG.RadioChannel);
   radio.setDataRate(RF24_250KBPS);
-  radio.openWritingPipe(0xE8E8F0F0E1LL);
+  radio.openWritingPipe(RADIO_PIPE);
   radio.startListening();
   radio.stopListening();
 #ifdef DEBUG
@@ -73,9 +72,8 @@ void Radio_sendData(ControlData controlData, uint32_t currentTime) {
 
 void Radio_bind() {
   radio.begin();
-  radio.setAutoAck(false);
-  radio.startListening();
-  radio.stopListening();
+  radio.setPALevel(RF24_PA_LOW);
+  radio.enableAckPayload();
 
   Screen_showRadioBindingScreen(0, false, false);
   uint8_t channel = findChannel();
@@ -87,31 +85,33 @@ void Radio_bind() {
 }
 
 uint8_t findChannel() {
-  uint8_t loads[RADIO_CHANNEL_UPPER_BOUNDARY - RADIO_CHANNEL_LOWER_BOUNDARY];
-  for (int8_t i = 0; i < RADIO_SCAN_REPEATS; i++) {
-    for (int8_t j = RADIO_CHANNEL_LOWER_BOUNDARY; j <= RADIO_CHANNEL_UPPER_BOUNDARY; j++) {
+  radio.startListening();
+  radio.stopListening();
+  uint16_t loads[RADIO_CHANNEL_UPPER_BOUNDARY - RADIO_CHANNEL_LOWER_BOUNDARY + 1];
+  for (uint8_t i = 0; i < RADIO_SCAN_REPEATS; i++) {
+    for (uint8_t j = RADIO_CHANNEL_LOWER_BOUNDARY; j <= RADIO_CHANNEL_UPPER_BOUNDARY; j++) {
       radio.setChannel(j);
       radio.startListening();
       delayMicroseconds(128);
       radio.stopListening();
       if ( radio.testCarrier() ) {
-        loads[j]++;
+        loads[j - RADIO_CHANNEL_LOWER_BOUNDARY]++;
       }
     }
   }
 #ifdef DEBUG
   for (int8_t i = RADIO_CHANNEL_LOWER_BOUNDARY; i <= RADIO_CHANNEL_UPPER_BOUNDARY; i++) {
-    Serial.print(loads[i]);   Serial.print("    ");
+    Serial.print(i);  Serial.print(F("=>"));  Serial.print(loads[i - RADIO_CHANNEL_LOWER_BOUNDARY]);   Serial.print("    ");
   }
   Serial.println();
 #endif
-  uint8_t minValue = RADIO_SCAN_REPEATS;
+  uint16_t minValue = 65000;
   for (int8_t i = RADIO_CHANNEL_LOWER_BOUNDARY; i <= RADIO_CHANNEL_UPPER_BOUNDARY; i++) {
-    if (loads[i] == 0) {
+    if (loads[i - RADIO_CHANNEL_LOWER_BOUNDARY] == 0) {
       return i;
     } else {
-      if (loads[i] < minValue) {
-        minValue = loads[i];
+      if (loads[i - RADIO_CHANNEL_LOWER_BOUNDARY] < minValue) {
+        minValue = loads[i - RADIO_CHANNEL_LOWER_BOUNDARY];
       }
     }
   }
@@ -123,17 +123,18 @@ uint32_t generateToken() {
 }
 
 void bindRx(uint8_t channel, uint32_t token) {
-  radio.setPALevel(radioPaLevel);
   radio.setChannel(channel);
   radio.setDataRate(RF24_250KBPS);
   radio.openWritingPipe(RADIO_PIPE);
+  radio.startListening();
+  radio.stopListening();
 #ifdef DEBUG
   Serial.print(F("Channel: ")); Serial.println(channel);
   radio.printDetails();
 #endif
   const uint16_t radioSendInterval = 10000; // 100p/s
   uint32_t previousRadioSendTime = 0;
-  
+
   bool bound = false;
   TxBindData txBindData;
   strcpy(txBindData.TxIdentifier, TX_IDENTIFIER);
@@ -145,15 +146,16 @@ void bindRx(uint8_t channel, uint32_t token) {
     Buzzer_beep(currentTime);
     if (currentTime - previousRadioSendTime >= radioSendInterval) {
       previousRadioSendTime = currentTime;
-      bool txSent = radio.write(&txBindData, sizeof(txBindData));
-      if (txSent && radio.isAckPayloadAvailable()) {
-        RxBindData rxBindData;
-        radio.read(&rxBindData, sizeof(rxBindData));
-        if (rxBindData.RxIdentifier == RX_IDENTIFIER && rxBindData.Token == token) {
-          selectedRxConfig.RadioChannel = channel;
-          selectedRxConfig.Token = token;
-          EEPROM_writeRxConfig(selectedRxConfig);
-          bound = true;
+      if (radio.write(&txBindData, sizeof(TxBindData))) {
+        if (radio.isAckPayloadAvailable()) {
+          char rxIdentifier[10];
+          radio.read(&rxIdentifier, 10);
+          if (strcmp(rxIdentifier, RX_IDENTIFIER) == 0) {
+            selectedRxConfig.RadioChannel = channel;
+            selectedRxConfig.Token = token;
+            EEPROM_writeRxConfig(selectedRxConfig);
+            bound = true;
+          }
         }
       }
     }
