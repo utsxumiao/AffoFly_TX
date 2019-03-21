@@ -130,9 +130,10 @@ void Menu_checkButtons() {
         default:
           break;
       }
-
+#ifdef BUZZER
       BuzzerBeepPattern buzzerPattern = buttonPress;
       Buzzer_start(buzzerPattern);
+#endif
     }
   }
 }

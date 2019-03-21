@@ -139,11 +139,15 @@ void bindRx(uint8_t channel, uint32_t token) {
   TxBindData txBindData;
   strcpy(txBindData.TxIdentifier, TX_IDENTIFIER);
   txBindData.Token = token;
+#ifdef BUZZER
   BuzzerBeepPattern buzzerPattern = radioBinding;
   Buzzer_start(buzzerPattern);
+#endif
   while (!bound) {
     uint32_t currentTime  = micros();
+#ifdef BUZZER
     Buzzer_beep(currentTime);
+#endif
     if (currentTime - previousRadioSendTime >= radioSendInterval) {
       previousRadioSendTime = currentTime;
       if (radio.write(&txBindData, sizeof(TxBindData))) {
@@ -160,7 +164,9 @@ void bindRx(uint8_t channel, uint32_t token) {
       }
     }
   }
+#ifdef BUZZER
   Buzzer_stop();
+#endif
 }
 
 #endif

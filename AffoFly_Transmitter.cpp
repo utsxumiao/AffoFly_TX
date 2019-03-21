@@ -187,8 +187,12 @@ void txModeProcess(uint32_t currentTime) {
       //Bind workflow is self-handled
       break;
   }
+#ifdef V_BAT
   Battery_read(currentTime);
+#endif
+#ifdef BUZZER
   Buzzer_beep(currentTime);
+#endif
 }
 
 void Control_init() {
@@ -373,9 +377,10 @@ void Control_checkButtons(uint32_t currentTime) {
             break;
 #endif
         }
-
+#ifdef BUZZER
         BuzzerBeepPattern buzzerPattern = buttonPress;
         Buzzer_start(buzzerPattern);
+#endif
         Control_getData(currentTime, true);
         Screen_showControlScreen(controlData, rateData, trimming, trimmingStickIndex, currentTime, true);
         
