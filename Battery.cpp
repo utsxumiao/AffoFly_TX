@@ -22,19 +22,18 @@ int8_t adjustment = 2;
 
 void Battery_init() {
   analogReference(INTERNAL);
-  analogRead(V_BAT_PIN); // dummy reading to saturate analog pin
+  // dummy reading to saturate analog pin so next reading can be correct
+  analogRead(V_BAT_PIN);
 }
 
 void Battery_read(uint32_t currentTime) {
-  if (currentTime - previousBatteryReadTime >= batteryReadInterval) {
+  if (currentTime - previousBatteryReadTime >= batteryReadInterval || previousBatteryReadTime == 0) {
     previousBatteryReadTime = currentTime;
-    //TODO: Battery read and conversion logic
-    float voltage = readVoltage();
+    BATTERY_VOLTAGE = readVoltage();
 #ifdef DEBUG
-    Serial.print("V_BAT: "); Serial.println(voltage);
+    Serial.print("V_BAT: "); Serial.println(BATTERY_VOLTAGE);
 #endif
-    BATTERY_VOLTAGE = voltage;
-    setLowVoltageAlarm(voltage);
+    setLowVoltageAlarm(BATTERY_VOLTAGE);
   }
 }
 
