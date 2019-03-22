@@ -3,6 +3,7 @@
 
 #ifdef BUZZER
 
+void Buzzer_init();
 void Buzzer_start(BuzzerBeepPattern pattern);
 void Buzzer_stop();
 void Buzzer_beep(uint32_t currentTime);

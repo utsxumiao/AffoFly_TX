@@ -133,7 +133,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
       }
       u8g2.setCursor(1, 10);
       u8g2.print(BATTERY_VOLTAGE);
-      u8g2.setCursor(19, 10);
+      u8g2.setCursor(26, 10);
       u8g2.print("v");
       if (LOW_VOLTAGE) {
         u8g2.setFontMode(0);

@@ -70,8 +70,11 @@ void setup() {
   EEPROM_dumpAll();
 #endif
   Screen_init();
+#ifdef V_BAT
+  Battery_init();
+#endif
 #ifdef BUZZER
-  pinMode(BUZZER_PIN, OUTPUT);
+  Buzzer_init();
 #endif
   TX_MODE = MODE_CONTROL;
   pinMode(FN_PIN, INPUT_PULLUP);

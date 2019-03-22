@@ -7,17 +7,32 @@
 
 #ifdef V_BAT
 
-uint16_t BATTERY_VOLTAGE = 0;
+float BATTERY_VOLTAGE = 0;
 bool LOW_VOLTAGE = false;
 static const uint32_t batteryReadInterval = 10000000;
 uint32_t previousBatteryReadTime = 0;
 
+// set to your voltage divider resistor values
+// voltage is taken on R2
+uint32_t voltageDividerR1 = 200000;
+uint32_t voltageDividerR2 = 10000;
+// if voltage is off, use this value as percentage to shift up or down
+// theoretically you can leave it "0" if your resistor is acurate enough
+int8_t adjustment = 2;
+
+void Battery_init() {
+  analogReference(INTERNAL);
+  analogRead(V_BAT_PIN); // dummy reading to saturate analog pin
+}
+
 void Battery_read(uint32_t currentTime) {
-  if (currentTime - previousBatteryReadTime >= batteryReadInterval || previousBatteryReadTime == 0) {
+  if (currentTime - previousBatteryReadTime >= batteryReadInterval) {
     previousBatteryReadTime = currentTime;
     //TODO: Battery read and conversion logic
-    uint16_t voltage = readVoltage();
-
+    float voltage = readVoltage();
+#ifdef DEBUG
+    Serial.print("V_BAT: "); Serial.println(voltage);
+#endif
     BATTERY_VOLTAGE = voltage;
     setLowVoltageAlarm(voltage);
   }
@@ -33,8 +48,11 @@ void setLowVoltageAlarm(uint16_t voltage) {
   }
 }
 
-uint16_t readVoltage() {
-  return 400;
+float readVoltage() {
+  float resolutionVoltage = 0.00107422; // AREF(1.1v) / 1024
+  uint16_t vReading = analogRead(V_BAT_PIN);
+  float voltageBattery = (vReading * resolutionVoltage * ((voltageDividerR1 + voltageDividerR2) / voltageDividerR2) * (100 + adjustment)) / 100;
+  return voltageBattery;
 }
 
 #endif
