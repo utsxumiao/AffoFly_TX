@@ -125,6 +125,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
     previousControlScreenRefreshTime = currentTime;
     u8g2.firstPage();
     do {
+#ifdef V_BAT
       // Voltage
       if (LOW_VOLTAGE) {
         u8g2.setFontMode(1);
@@ -139,6 +140,7 @@ void Screen_showControlScreen(ControlData controlData, RateData rateData, bool t
         u8g2.setFontMode(0);
         u8g2.setDrawColor(1);
       }
+#endif
 
       // RX
       u8g2.setCursor(40, 10);

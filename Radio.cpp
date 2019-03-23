@@ -46,23 +46,23 @@ void Radio_init() {
 void Radio_sendData(ControlData controlData, uint32_t currentTime) {
   if (currentTime - previousRadioSendTime >= radioSendInterval) {
     previousRadioSendTime = currentTime;
-    //#ifdef DEBUG
-    //  Serial.print("Token: ");     Serial.print(controlData.Token);
-    //  Serial.print("    Throttle: "); Serial.print(controlData.Throttle);
-    //  Serial.print("    Yaw: ");      Serial.print(controlData.Yaw);
-    //  Serial.print("    Pitch: ");    Serial.print(controlData.Pitch);
-    //  Serial.print("    Roll: ");     Serial.print(controlData.Roll);
-    //  Serial.print("    Aux1: ");     Serial.print(controlData.Aux1);
-    //  Serial.print("    Aux2: ");     Serial.print(controlData.Aux2);
-    //  Serial.print("    Aux3: ");     Serial.print(controlData.Aux3);
-    //  Serial.print("    Aux4: ");     Serial.print(controlData.Aux4);
-    //  Serial.print("    Aux5: ");     Serial.print(controlData.Aux5);
-    //  Serial.print("    Aux6: ");     Serial.print(controlData.Aux6);
-    //  Serial.print("    Swd1: ");     Serial.print(controlData.Swd1);
-    //  Serial.print("    Swd2: ");     Serial.print(controlData.Swd2);
-    //  Serial.println();
-    //#endif
     controlData.Token = CURRENT_RX_CONFIG.Token;
+    //#ifdef DEBUG
+//      Serial.print("Token: ");     Serial.print(controlData.Token);
+//      Serial.print("    Throttle: "); Serial.print(controlData.Throttle);
+//      Serial.print("    Yaw: ");      Serial.print(controlData.Yaw);
+//      Serial.print("    Pitch: ");    Serial.print(controlData.Pitch);
+//      Serial.print("    Roll: ");     Serial.print(controlData.Roll);
+//      Serial.print("    Aux1: ");     Serial.print(controlData.Aux1);
+//      Serial.print("    Aux2: ");     Serial.print(controlData.Aux2);
+//      Serial.print("    Aux3: ");     Serial.print(controlData.Aux3);
+//      Serial.print("    Aux4: ");     Serial.print(controlData.Aux4);
+//      Serial.print("    Aux5: ");     Serial.print(controlData.Aux5);
+//      Serial.print("    Aux6: ");     Serial.print(controlData.Aux6);
+//      Serial.print("    Swd1: ");     Serial.print(controlData.Swd1);
+//      Serial.print("    Swd2: ");     Serial.print(controlData.Swd2);
+//      Serial.println();
+    //#endif
     radio.write(&controlData, sizeof(ControlData));
 #ifdef SHOW_RATE
     RADIO_COUNT++;
