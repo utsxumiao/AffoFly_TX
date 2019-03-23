@@ -52,7 +52,9 @@
 
 //#define SWD_2
 #define V_BAT
+#ifdef V_BAT
 #define V_BAT_ALARM_VOLTAGE 3.5
+#endif
 
 /* AUX States:
      - 0:      SWD (Dail) type
