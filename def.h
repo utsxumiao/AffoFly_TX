@@ -76,7 +76,7 @@
 #define EEPROM_VERSION_ID               "AffoFly_f19a81b3"
 #define EEPROM_VERSION_ID_LENGTH        16
 // EEPROM address 0-99 for general TX settings
-// Each RxConfig takes 30 bytes (currently uses 20 bytes)
+// Each RxConfig takes 30 bytes (currently uses 21 bytes)
 // We allocate 10 RxConfig
 // EEPROM address 100-399 for 10 RxConfig
 #define EEPROM_SETTING_LENGTH           400

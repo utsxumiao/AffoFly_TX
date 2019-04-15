@@ -205,7 +205,7 @@ void Control_init() {
 }
 
 void Control_initConfig() {
-  CURRENT_RX_CONFIG = EEPROM_readRxConfig(EEPROM_readCurrentRxId());
+  EEPROM_readRxConfig(EEPROM_readCurrentRxId(), &CURRENT_RX_CONFIG);
 }
 
 //void Control_initButtons() {

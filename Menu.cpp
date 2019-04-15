@@ -301,7 +301,8 @@ void setupMenu() {
 }
 
 char* getRxName(uint8_t index, char* rxBuffer)  {
-  RxConfig tempRxConfig = EEPROM_readRxConfig(index + 1);
+  RxConfig tempRxConfig;
+  EEPROM_readRxConfig(index + 1, &tempRxConfig);
   strncpy(rxBuffer, tempRxConfig.Name, RX_NAME_MAX_LENGTH);
   rxBuffer[RX_NAME_MAX_LENGTH] = '\0';
   return rxBuffer;
@@ -505,7 +506,7 @@ void getRxChannelStr(uint8_t channel)  {
 
 void handleMenu(uint8_t menuId, char* title) {
   if (menuId >= MENU_ID_RX_0 && menuId <= MENU_ID_RX_9) { // Specific RX has been selected
-    selectedRxConfig = EEPROM_readRxConfig(menuId - MENU_ID_RX_0 + 1);
+    EEPROM_readRxConfig(menuId - MENU_ID_RX_0 + 1, &selectedRxConfig);
     rxSettingTemplate->ParentId = menuId;
     rxSettingTemplate->ParentMenu = title;
     getRxChannelStr(selectedRxConfig.RadioChannel);
@@ -548,7 +549,7 @@ void handleMenu(uint8_t menuId, char* title) {
 #endif
       case MENU_ID_RX_SETTING_SELECT:
         EEPROM_writeCurrentRxId(selectedRxConfig.Id);
-        CURRENT_RX_CONFIG = EEPROM_readRxConfig(selectedRxConfig.Id);
+        EEPROM_readRxConfig(selectedRxConfig.Id, &CURRENT_RX_CONFIG);
         break;
       case MENU_ID_RX_SETTING_BIND:
         TX_MODE = MODE_BIND;
@@ -556,6 +557,7 @@ void handleMenu(uint8_t menuId, char* title) {
       case MENU_ID_RX_RENAME_OK:
         strcpy(rxRenameTemplate->ParentMenu, title);
         strncpy(selectedRxConfig.Name, title, RX_NAME_MAX_LENGTH);
+        selectedRxConfig.Name[RX_NAME_MAX_LENGTH] = '\0';
         EEPROM_writeRxConfig(selectedRxConfig);
         break;
       case MENU_ID_SETTING_SOFT_RST:
