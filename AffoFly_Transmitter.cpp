@@ -102,13 +102,16 @@ void loop() {
     rateData.ButtonCheckRate = buttonCheckCount;
     rateData.DataGetRate = dataGetCount;
     rateData.RadioRate = RADIO_COUNT;
+#if defined(SIMULATOR) || defined(BUDDY)
     rateData.CPPMRate = CPPM_COUNT;
-    
+#endif 
     loopCount = 0;
     buttonCheckCount = 0;
     dataGetCount = 0;
     RADIO_COUNT = 0;
+#if defined(SIMULATOR) || defined(BUDDY)
     CPPM_COUNT = 0;
+#endif 
   }
 #endif
 }
