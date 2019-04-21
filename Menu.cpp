@@ -236,7 +236,7 @@ void setupMenu() {
   initMenuNodeItem(settingMenu->Items, 2, MENU_ID_SETTING_SOFT_RST, currentMenuStr);
 
   settingMenu->Prev = topMenu;  // Link back to the previous menu node
-  topMenu->Items[4].Item = settingMenu;  // Link with the menu item in the previous menu node
+  topMenu->Items[topMenuNodeItemCount - 1].Item = settingMenu;  // Link with the menu item in the previous menu node
 
   // RX Selection menu ----------------
   rxMenu = (MenuNode*)malloc(sizeof(MenuNode));
